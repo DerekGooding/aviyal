@@ -3,11 +3,12 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
+using aviyal.Classes.Events;
+using aviyal.Interfaces;
+using Aviyal;
 using System.Text.Json.Nodes;
-using System.Collections.Generic;
-using System.Linq;
 
+namespace aviyal.Classes;
 public class Config : IJson<Config>
 {
 	public string layout { get; set; } = "dwindle";
@@ -102,7 +103,7 @@ public class Config : IJson<Config>
 
 	public static Config FromJson(string json)
 	{
-		JsonNode node = JsonNode.Parse(json);
+		var node = JsonNode.Parse(json);
 
 		Config config = new();
 		config.layout = node["layout"].ToString();
@@ -122,7 +123,7 @@ public class Config : IJson<Config>
 		config.serverPort = Convert.ToInt32(node["serverPort"].ToString());
 
 		config.rules = new();
-		JsonArray _rules = node["rules"].AsArray();
+		var _rules = node["rules"].AsArray();
 		_rules.ToList().ForEach(_rule =>
 		{
 			WindowRule rule = new();
@@ -136,23 +137,23 @@ public class Config : IJson<Config>
 		});
 
 		config.keymaps = new();
-		JsonArray _keymaps = node["keymaps"].AsArray();
+		var _keymaps = node["keymaps"].AsArray();
 		_keymaps.ToList().ForEach(_keymap =>
 		{
 			Keymap keymap = new();
 
 			// keys
-			JsonArray _keys = _keymap["keys"].AsArray();
+			var _keys = _keymap["keys"].AsArray();
 			_keys.ToList().ForEach(_key =>
 			{
-				Enum.TryParse<VK>(_key.ToString(), true, out VK vkKey);
+				Enum.TryParse<VK>(_key.ToString(), true, out var vkKey);
 				keymap.keys.Add(vkKey);
 			});
 			// command
-			string _command = _keymap["command"].ToString();
-			Enum.TryParse<COMMAND>(_command, true, out keymap.command);
+			var _command = _keymap["command"].ToString();
+			Enum.TryParse(_command, true, out keymap.command);
 			// arguments
-			JsonArray _arguments = _keymap["arguments"].AsArray();
+			var _arguments = _keymap["arguments"].AsArray();
 			_arguments.ToList().ForEach(_arg =>
 			{
 				keymap.arguments.Add(_arg.ToString());

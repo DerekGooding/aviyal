@@ -3,16 +3,13 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Drawing;
+using aviyal.Classes;
+using aviyal.Classes.Events;
+using aviyal.Classes.Utilities;
+using aviyal.Classes.Win32;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading;
 
+namespace Aviyal;
 class Aviyal : IDisposable
 {
 	static string ver = "0.1.0";
@@ -295,10 +292,7 @@ available options:
 				});
 				break;
 			case "--restore":
-				WithConsole(() =>
-				{
-					Restore(args.ToList().ElementAtOrDefault(1));
-				});
+				WithConsole(() => Restore(args.ToList().ElementAtOrDefault(1)));
 				break;
 		}
 	}

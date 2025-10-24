@@ -2,10 +2,10 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
+using aviyal.Classes;
+using aviyal.Classes.Win32;
 
-using System;
-using System.Collections.Generic;
-
+namespace aviyal.Interfaces;
 public interface IWindow
 {
 	public nint hWnd { get; }

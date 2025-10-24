@@ -3,12 +3,10 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using aviyal.Classes.Win32;
 using System.Runtime.InteropServices;
-using System.Threading;
 
+namespace aviyal.Classes.Events;
 public class WindowEventsListener : IDisposable
 {
 	delegate void WINEVENTPROC(

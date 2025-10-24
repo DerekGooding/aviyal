@@ -2,16 +2,13 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
-
-using System;
-using System.Linq;
+using aviyal.Classes.Win32;
+using aviyal.Interfaces;
 using System.Diagnostics;
-using System.Windows;
-using System.IO;
 using System.Text.Json.Nodes;
-using System.Collections.Generic;
 
-public class Logger
+namespace aviyal.Classes.Utilities;
+public static class Logger
 {
 	public static bool DEBUG = true;
 	public static bool CONSOLE = true;
@@ -31,7 +28,7 @@ public class Logger
 
 	public static void Error(Exception ex, string? customMessage = null)
 	{
-		string text = $"\n{ex.Message}\n{ex.StackTrace}";
+		var text = $"\n{ex.Message}\n{ex.StackTrace}";
 		Console.WriteLine($"{customMessage}: {text}");
 		User32.MessageBox(0, text, customMessage ?? "Error", 0);
 	}
@@ -74,12 +71,12 @@ public class WindowManagerState : IJson<WindowManagerState>
 	public static WindowManagerState FromJson(string json)
 	{
 		WindowManagerState state = new();
-		JsonNode? node = JsonNode.Parse(json);
-		JsonArray? _arr = node?["windows"]?.AsArray();
+		var node = JsonNode.Parse(json);
+		var _arr = node?["windows"]?.AsArray();
 		_arr?.ToList().ForEach(
 			_wnd =>
 			{
-				nint hWnd = (nint)Convert.ToInt32(_wnd?["hWnd"]?.ToString());
+				var hWnd = (nint)Convert.ToInt32(_wnd?["hWnd"]?.ToString());
 				Window wnd = new(hWnd);
 				state.windows.Add(wnd);
 			}

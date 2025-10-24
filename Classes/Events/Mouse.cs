@@ -3,13 +3,11 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using aviyal.Classes.Win32;
 using System.Diagnostics;
-using System.Threading;
 using System.Runtime.InteropServices;
 
+namespace aviyal.Classes.Events;
 public class MouseEventsListener : IDisposable
 {
 	delegate int MouseProc(int code, nint wparam, nint lparam);

@@ -2,9 +2,7 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
-
-using System;
-
+namespace aviyal.Interfaces;
 public interface IJson<T>
 {
 	public string ToJson();

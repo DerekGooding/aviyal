@@ -2,13 +2,10 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
+using aviyal.Classes.Win32;
+using aviyal.Interfaces;
 
-using System;
-using System.Runtime.InteropServices;
-using System.Drawing;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+namespace aviyal.Classes;
 
 public class Dwindle : ILayout
 {

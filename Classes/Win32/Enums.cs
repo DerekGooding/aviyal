@@ -3,10 +3,7 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.Runtime.InteropServices;
-using System.Drawing;
-
+namespace aviyal.Classes.Win32;
 public enum WINDOWSTYLE : uint
 {
 	WS_OVERLAPPED = 0x00000000,

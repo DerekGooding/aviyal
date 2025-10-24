@@ -2,6 +2,7 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
+namespace aviyal.Classes.Win32;
 
 public delegate bool EnumWindowProc(nint hWnd, nint lParam);
 public delegate nint WNDPROC(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam);

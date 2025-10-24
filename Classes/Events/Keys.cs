@@ -3,14 +3,12 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using aviyal.Classes.Win32;
+using Aviyal;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
+namespace aviyal.Classes.Events;
 public class KeyEventsListener : IDisposable
 {
 	delegate int KeyboardProc(int code, nint wparam, nint lparam);
@@ -146,16 +144,12 @@ public class KeyEventsListener : IDisposable
 public class Keymap
 {
 	public Guid id { get; } = Guid.NewGuid();
-	public List<VK> keys = new();
+	public List<VK> keys = [];
 	public COMMAND command;
-	public List<string> arguments = new();
-	public override bool Equals(object? obj)
-	{
-		if (((Keymap)obj).id == this.id) return true;
-		return false;
-	}
-	public static bool operator ==(Keymap left, Keymap right) { return left.Equals(right); }
-	public static bool operator !=(Keymap left, Keymap right) { return !left.Equals(right); }
+	public List<string> arguments = [];
+    public override bool Equals(object? obj) => ((Keymap)obj).id == id;
+    public static bool operator ==(Keymap left, Keymap right) => left.Equals(right);
+    public static bool operator !=(Keymap left, Keymap right) => !left.Equals(right);
 }
 
 public enum VK : int

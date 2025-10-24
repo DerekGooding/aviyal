@@ -3,14 +3,11 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
 
+namespace aviyal.Classes;
 public class Server : IDisposable
 {
 	Socket socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
