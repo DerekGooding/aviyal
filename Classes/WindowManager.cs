@@ -1,7 +1,7 @@
 using aviyal.Classes.APIs;
+using aviyal.Classes.Enums;
 using aviyal.Classes.Structs;
 using aviyal.Classes.Utilities;
-using aviyal.Classes.Win32;
 using aviyal.Interfaces;
 using System.Diagnostics;
 
@@ -10,7 +10,7 @@ namespace aviyal.Classes;
 public class WindowManager : IWindowManager
 {
 	public List<Window>? initWindows { get; set; } // initWindows := initial set of windows to start the WM with
-	public List<Workspace?> workspaces { get; } = new();
+	public List<Workspace?> workspaces { get; } = [];
 	public Workspace focusedWorkspace { get; private set; }
 
 	public int focusedWorkspaceIndex
@@ -76,7 +76,7 @@ public class WindowManager : IWindowManager
 
 	public List<Window?> GetVisibleWindows()
 	{
-		List<Window?> windows = new();
+		List<Window?> windows = [];
 		List<nint>? hWnds = Utils.GetAllTaskbarWindows();
 		hWnds?.ForEach(hWnd =>
 		{
@@ -87,7 +87,7 @@ public class WindowManager : IWindowManager
 
 	public List<Window?> GetAllWindows()
 	{
-		List<Window?> windows = new();
+		List<Window?> windows = [];
 		foreach (var wksp in workspaces)
 			foreach (var wnd in wksp!.windows)
 				windows.Add(wnd);
@@ -155,9 +155,11 @@ public class WindowManager : IWindowManager
 				workspaces[next].Show();
 
 				int duration = 500;
-				List<Task> _ts = new();
-				_ts.Add(Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, -w, duration)));
-				_ts.Add(Task.Run(() => WorkspaceAnimate(workspaces[next], w, 0, duration)));
+				List<Task> _ts =
+                [
+                    Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, -w, duration)),
+                    Task.Run(() => WorkspaceAnimate(workspaces[next], w, 0, duration)),
+                ];
 				Task.WhenAll(_ts).Wait();
 				focusedWorkspace.Hide();
 				focusedWorkspace = workspaces[next];
@@ -190,9 +192,11 @@ public class WindowManager : IWindowManager
 				workspaces[prev].Show();
 
 				int duration = 500;
-				List<Task> _ts = new();
-				_ts.Add(Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, w, duration)));
-				_ts.Add(Task.Run(() => WorkspaceAnimate(workspaces[prev], -w, 0, duration)));
+				List<Task> _ts =
+                [
+                    Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, w, duration)),
+                    Task.Run(() => WorkspaceAnimate(workspaces[prev], -w, 0, duration)),
+                ];
 				Task.WhenAll(_ts).Wait();
 				focusedWorkspace.Hide();
 				focusedWorkspace = workspaces[prev];
@@ -311,10 +315,10 @@ public class WindowManager : IWindowManager
 
 		// filter out windows without the normal/default border thickness
 		const int SM_CXSIZEFRAME = 32;
-		if (wnd.borderThickness < User32.GetSystemMetrics(SM_CXSIZEFRAME))
+		if (wnd.BorderThickness < User32.GetSystemMetrics(SM_CXSIZEFRAME))
 			return true;
 
-		if (!Environment.IsPrivilegedProcess && wnd.elevated) return true;
+		if (!Environment.IsPrivilegedProcess && wnd.Elevated) return true;
 
 		if (IsWindowInConfigRules(wnd, "ignore"))
 		{
@@ -597,7 +601,7 @@ public class WindowManager : IWindowManager
 	public async Task WorkspaceAnimate(Workspace wksp, int startX, int endX, int duration)
 	{
 		int fps = 60;
-		int dt = (int)(1000 / fps); // milliseconds
+		int dt = 1000 / fps; // milliseconds
 		int frames = (int)(((float)duration / 1000) * fps);
 
 		Stopwatch sw = new();

@@ -5,9 +5,9 @@
 
 using aviyal.Classes;
 using aviyal.Classes.APIs;
+using aviyal.Classes.Enums;
 using aviyal.Classes.Events;
 using aviyal.Classes.Utilities;
-using aviyal.Classes.Win32;
 using System.Diagnostics;
 
 namespace Aviyal;
@@ -214,12 +214,8 @@ class Aviyal : IDisposable
 
 	static void Restore(string? file = null)
 	{
-		string restoreFile;
-		if (file != null)
-			restoreFile = new FileInfo(file).FullName;
-		else
-			restoreFile = Paths.stateFile;
-		if (!File.Exists(restoreFile))
+		var restoreFile = file != null ? new FileInfo(file).FullName : Paths.stateFile;
+        if (!File.Exists(restoreFile))
 		{
 			Console.WriteLine($"State file: {restoreFile} not found!");
 			return;

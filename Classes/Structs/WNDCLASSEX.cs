@@ -4,7 +4,7 @@
 */
 
 using System.Runtime.InteropServices;
-using aviyal.Classes.Win32;
+using aviyal.Classes.Delegates;
 
 namespace aviyal.Classes.Structs;
 

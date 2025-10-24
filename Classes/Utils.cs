@@ -9,28 +9,34 @@ using System.Runtime.InteropServices;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net;
-using aviyal.Classes.Win32;
 using aviyal.Classes.Utilities;
 using aviyal.Classes.APIs;
 using aviyal.Classes.Structs;
+using aviyal.Classes.Enums;
+using aviyal.Classes.Delegates;
 
 namespace aviyal.Classes;
 
-public partial class Utils
+public static class Utils
 {
     public static List<string> GetStylesFromHwnd(nint hWnd)
     {
         var dwStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
-        List<string> styles = new();
+        List<string> styles = [];
         foreach (var name in Enum.GetNames<WINDOWSTYLE>())
         {
             var style = Enum.Parse<WINDOWSTYLE>(name);
             if (style == WINDOWSTYLE.WS_OVERLAPPED)
-                if ((dwStyles & ((uint)WINDOWSTYLE.WS_POPUP | (uint)WINDOWSTYLE.WS_CHILD)) == 0) styles.Add(name);
+            {
+                if ((dwStyles & ((uint)WINDOWSTYLE.WS_POPUP | (uint)WINDOWSTYLE.WS_CHILD)) == 0)
+                {
+                    styles.Add(name);
+                }
                 else
                 {
                     if ((dwStyles & (uint)style) != 0) styles.Add(name);
                 }
+            }
         }
         return styles;
     }
@@ -42,21 +48,15 @@ public partial class Utils
         if (styleList.Contains("WS_POPUP")) return true;
 
         var className = GetClassNameFromHWND(hWnd);
-        if (className == "#32768") return true;
-        if (className == "#32770") return true;
-        if (className == "SysListView32") return true;
-        if (className == "SysShadow") return true;
-        if (className == "TrayiconMessageWindow") return true;
-        if (className == "tray_icon_app") return true;
-        return false;
+        return className is "#32768" or "#32770" or "SysListView32"
+            or "SysShadow" or "TrayiconMessageWindow" or "tray_icon_app";
     }
 
     public static bool IsWindowVisible(nint hWnd)
     {
         var styleList = GetStylesFromHwnd(hWnd);
         //Logger.Log($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
-        if (styleList.Contains("WS_VISIBLE")) return true;
-        return false;
+        return styleList.Contains("WS_VISIBLE");
     }
 
     public static nint GetWindowUnderCursor()
@@ -99,7 +99,7 @@ public partial class Utils
     public static nint GetHWNDFromPID(int processId)
     {
         nint found_hWnd = new();
-        EnumWindowProc enumWindowProc = (hWnd, lParam) =>
+        bool enumWindowProc(nint hWnd, nint lParam)
         {
             User32.GetWindowThreadProcessId(hWnd, out var _processId);
             if (_processId == processId)
@@ -108,7 +108,7 @@ public partial class Utils
                 return false;
             }
             return true;
-        };
+        }
         User32.EnumWindows(enumWindowProc, processId);
         return found_hWnd;
     }
@@ -119,8 +119,8 @@ public partial class Utils
     /// <returns></returns>
     public static List<GUIProcess> EnumWindowProcesses()
     {
-        List<GUIProcess> guiProcesses = new();
-        EnumWindowProc enumWindowProc = (hWnd, lParam) =>
+        List<GUIProcess> guiProcesses = [];
+        bool enumWindowProc(nint hWnd, nint lParam)
         {
             User32.GetWindowThreadProcessId(hWnd, out var processId);
             var process = Process.GetProcessById((int)processId);
@@ -145,7 +145,7 @@ public partial class Utils
             };
             User32.EnumChildWindows(hWnd, enumChildWindowProc, nint.Zero);
             return true;
-        };
+        }
         User32.EnumWindows(enumWindowProc, nint.Zero);
         return guiProcesses;
     }
@@ -173,18 +173,18 @@ public partial class Utils
         if (exePath == null) return null;
 
         // List all device paths
-        List<string> driveDevicePaths = new();
-        List<string> driveNames = new();
-        Dictionary<string, string> devicePathToDrivePath = new();
+        List<string> driveDevicePaths = [];
+        List<string> driveNames = [];
+        Dictionary<string, string> devicePathToDrivePath = [];
         driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
-        driveDevicePaths = driveNames.Select(drive =>
+        driveDevicePaths = driveNames.ConvertAll(drive =>
         {
             StringBuilder str = new(256);
             Kernel32.QueryDosDevice(drive, str, (uint)str.Capacity);
             var devicePath = str.ToString();
             devicePathToDrivePath[devicePath] = drive;
             return devicePath;
-        }).ToList();
+        });
 
         //
         var exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
@@ -195,15 +195,9 @@ public partial class Utils
         return exeNtPath;
     }
 
-    public static int MAKEWPARAM(short L, short H)
-    {
-        return H << 16 | (int)L;
-    }
+    public static int MAKEWPARAM(short L, short H) => H << 16 | (int)L;
 
-    public static int MAKELPARAM(short L, short H)
-    {
-        return H << 16 | (int)L;
-    }
+    public static int MAKELPARAM(short L, short H) => H << 16 | (int)L;
 
     /// <summary>
     /// Determines if a window is visible and running in the Taskbar/Alt-Tab
@@ -261,7 +255,7 @@ public partial class Utils
     /// <returns></returns>
     public static List<nint>? GetAllTaskbarWindows()
     {
-        List<nint>? topWindows = new();
+        List<nint>? topWindows = [];
         EnumWindowProc enumWnd = (hWnd, lParam) =>
         {
             topWindows.Add(hWnd);
@@ -279,18 +273,15 @@ public partial class Utils
     /// usually in the form 192.168.XX.XX
     /// </summary>
     /// <returns></returns>
-    public static IPAddress GetLANIP()
-    {
-        return NetworkInterface.GetAllNetworkInterfaces()
+    public static IPAddress GetLANIP() => NetworkInterface.GetAllNetworkInterfaces()
             .ToList()
             .Select(iface => iface.GetIPProperties().UnicastAddresses
                 .Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork && addr.PrefixOrigin == PrefixOrigin.Dhcp)
             )
-            .Where(list => list.Count() != 0)
+            .Where(list => list.Any())
             .ToList()[0]
             .ToList()[0]
             .Address;
-    }
 
     /// <summary>
     /// Retrieves the primary network interface in your pc that you 
@@ -306,10 +297,7 @@ public partial class Utils
         return interfaces.First(iface => iface.GetIPProperties().UnicastAddresses.Select(ucast => ucast.Address).Contains(addr));
     }
 
-    public static int GetInterfaceIndex(NetworkInterface iface)
-    {
-        return iface.GetIPProperties().GetIPv4Properties().Index;
-    }
+    public static int GetInterfaceIndex(NetworkInterface iface) => iface.GetIPProperties().GetIPv4Properties().Index;
 
     public static string GetWindowTitleFromHWND(nint hWnd)
     {
@@ -399,7 +387,9 @@ public partial class Utils
             return ((int)(scale * imgWidth), (int)(scale * imgHeight));
         }
         else
+        {
             return (imgWidth, imgHeight);
+        }
     }
 
     public static bool ListContentEqual<T>(List<T> a, List<T> b)
@@ -424,7 +414,6 @@ public partial class Utils
         Advapi32.OpenProcessToken(handle, TOKEN_QUERY, out var tokenHandle);
         TOKEN_ELEVATION info = new();
         Advapi32.GetTokenInformation(tokenHandle, TOKEN_INFORMATION_CLASS.TokenElevation, ref info, sizeof(uint), out var returnLength);
-        if (info.TokenIsElevated == 0) return false;
-        return true;
+        return info.TokenIsElevated != 0;
     }
 }

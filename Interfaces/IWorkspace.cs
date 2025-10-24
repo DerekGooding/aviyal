@@ -9,10 +9,10 @@ namespace aviyal.Interfaces;
 
 public interface IWorkspace
 {
-	public List<Window> windows { get; }
+	public List<Window?> windows { get; }
 	public Window? focusedWindow { get; }
 	public int? focusedWindowIndex { get; }
-	public ILayout layout { get; set; }
+	public ILayout? layout { get; set; }
 
 	public void Add(Window wnd);
 	public void Remove(Window wnd);

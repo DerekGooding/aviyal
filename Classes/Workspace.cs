@@ -1,23 +1,16 @@
 using aviyal.Classes.APIs;
+using aviyal.Classes.Enums;
 using aviyal.Classes.Structs;
-using aviyal.Classes.Win32;
 using aviyal.Interfaces;
 
 namespace aviyal.Classes;
 
 public class Workspace : IWorkspace
 {
-	public Guid id { get; } = Guid.NewGuid();
-	public List<Window?> windows { get; private set; } = new();
-	public Window? focusedWindow
-	{
-		get
-		{
-			return windows.FirstOrDefault(_wnd => _wnd == new Window(User32.GetForegroundWindow()));
-		}
-		private set;
-	}
-	public int? focusedWindowIndex
+	public Guid Id { get; } = Guid.NewGuid();
+    public List<Window?> windows { get; } = [];
+    public Window? focusedWindow => windows.FirstOrDefault(_wnd => _wnd == new Window(User32.GetForegroundWindow()));
+    public int? focusedWindowIndex
 	{
 		get
 		{
@@ -34,35 +27,20 @@ public class Workspace : IWorkspace
 			return index;
 		}
 	}
-	public ILayout layout { get; set; }
+	public ILayout? layout { get; set; }
 
-	public override bool Equals(object? obj)
-	{
-		if (obj is null) return this is null;
-		if (((Workspace)obj).id == id) return true;
-		return false;
-	}
+    public override bool Equals(object? obj) => obj is null ? this is null : ((Workspace)obj).Id == Id;
+    public static bool operator ==(Workspace left, Workspace right) => left is null ? right is null : left.Equals(right);
+    public static bool operator !=(Workspace left, Workspace right) => left is null ? right is not null : !left.Equals(right);
 
-	public static bool operator ==(Workspace left, Workspace right)
-	{
-		if (left is null) return right is null;
-		return left.Equals(right);
-	}
-
-	public static bool operator !=(Workspace left, Workspace right)
-	{
-		if (left is null) return right is not null;
-		return !left.Equals(right);
-	}
-
-	Config config;
-	(int, int) floatingWindowSize;
+    readonly Config config;
+	(int, int) _floatingWindowSize;
 	public Workspace(Config config)
 	{
 		this.config = config;
 		var sizeStrs = config.floatingWindowSize.Split("x");
-		floatingWindowSize.Item1 = Convert.ToInt32(sizeStrs[0]);
-		floatingWindowSize.Item2 = Convert.ToInt32(sizeStrs[1]);
+		_floatingWindowSize.Item1 = Convert.ToInt32(sizeStrs[0]);
+		_floatingWindowSize.Item2 = Convert.ToInt32(sizeStrs[1]);
 	}
 
 	public void Add(Window wnd)
@@ -81,12 +59,7 @@ public class Workspace : IWorkspace
 	{
 		//windows.ForEach(wnd => //Console.WriteLine($"WND IS NULL: {wnd == null}"));
 
-		List<Window?> nonFloating = windows
-		.Where(wnd => wnd?.resizeable == true)
-		.Where(wnd => wnd?.floating == false)
-		.Where(wnd => wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED)
-		.Where(wnd => wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)
-		.ToList();
+		List<Window?> nonFloating = [.. windows.Where(wnd => wnd?.resizeable == true && wnd?.floating == false && wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED && wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)];
 
 		// non floating
 		RECT[] relRects = layout.GetRects(nonFloating.Count);
@@ -98,12 +71,7 @@ public class Workspace : IWorkspace
 		}
 
 		// floating
-		List<Window?> floating = windows
-		.Where(wnd => wnd?.resizeable == true)
-		.Where(wnd => wnd?.floating == true)
-		.Where(wnd => wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED)
-		.Where(wnd => wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)
-		.ToList();
+		List<Window?> floating = [.. windows.Where(wnd => wnd?.resizeable == true && wnd?.floating == true && wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED && wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)];
 
 		for (int i = 0; i < floating.Count; i++)
 		{
@@ -111,52 +79,37 @@ public class Workspace : IWorkspace
 		}
 	}
 
-	public void Show()
-	{
-		windows?.ForEach(wnd => wnd?.Show());
-	}
+    public void Show() => windows?.ForEach(wnd => wnd?.Show());
 
-	public void Hide()
-	{
-		windows?.ForEach(wnd =>
-		{
-			//var (sx, sy) = Utils.GetScreenSize();
-			//wnd?.Move(sx, sy);
-			wnd?.Hide();
-		});
-	}
+    //var (sx, sy) = Utils.GetScreenSize();
+    //wnd?.Move(sx, sy);
+    public void Hide() => windows?.ForEach(wnd => wnd?.Hide());
 
-	public void Focus()
+    public void Focus()
 	{
 		Update();
 		Show();
 		SetFocusedWindow();
 	}
 
-	public void Redraw()
-	{
-		windows?.ForEach(wnd => wnd?.Redraw());
-	}
+    public void Redraw() => windows?.ForEach(wnd => wnd?.Redraw());
 
-	public void Move(int? x, int? y, bool redraw = true)
-	{
-		windows.ForEach(wnd =>
-		{
-			wnd?.Move(wnd.relRect.Left + x, wnd.relRect.Top + y, redraw);
-		});
-	}
+    public void Move(int? x, int? y, bool redraw = true) => windows.ForEach(wnd => wnd?.Move(wnd.relRect.Left + x, wnd.relRect.Top + y, redraw));
 
-	Window? lastFocusedWindow = null;
+    Window? _lastFocusedWindow;
 	public void SetFocusedWindow()
 	{
-		if (lastFocusedWindow == null)
-		{
-			var wnd = windows?.FirstOrDefault();
-			lastFocusedWindow = wnd;
-			wnd?.Focus();
-		}
-		else lastFocusedWindow.Focus();
-	}
+        if (_lastFocusedWindow == null)
+        {
+            var wnd = windows?.FirstOrDefault();
+            _lastFocusedWindow = wnd;
+            wnd?.Focus();
+        }
+        else
+        {
+            _lastFocusedWindow.Focus();
+        }
+    }
 
 	public void CloseFocusedWindow()
 	{
@@ -191,7 +144,7 @@ public class Workspace : IWorkspace
 	public void MakeFloating(Window wnd)
 	{
 		if (!wnd.resizeable) return;
-		wnd.Move(GetCenterRect(floatingWindowSize.Item1, floatingWindowSize.Item2));
+		wnd.Move(GetCenterRect(_floatingWindowSize.Item1, _floatingWindowSize.Item2));
 	}
 
 	public void ToggleFloating(Window? wnd = null)
@@ -209,10 +162,10 @@ public class Workspace : IWorkspace
 		(int sw, int sh) = Utils.GetScreenSize();
 		return new()
 		{
-			Left = (int)((sw - w) / 2),
-			Right = (int)((sw + w) / 2),
-			Top = (int)((sh - h) / 2),
-			Bottom = (int)((sh + h) / 2),
+			Left = (sw - w) / 2,
+			Right = (sw + w) / 2,
+			Top = (sh - h) / 2,
+			Bottom = (sh + h) / 2,
 		};
 	}
 

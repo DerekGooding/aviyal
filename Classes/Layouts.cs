@@ -7,12 +7,12 @@ using aviyal.Interfaces;
 
 namespace aviyal.Classes;
 
-public class Dwindle : ILayout
+public class Dwindle(Config config) : ILayout
 {
 	// rects with margin
-	RECT[] rects = null;
+	RECT[]? rects;
 	// rects with no margins
-	RECT[] fillRects = null;
+	RECT[]? fillRects;
 
 	public RECT[] GetRects(int count /* no of windows */)
 	{
@@ -35,14 +35,14 @@ public class Dwindle : ILayout
 					{
 						fillRects[i - 1] = TopHalf(fillRects[i - 1]);
 					}
-					fillRect.Left += (int)((fillRect.Right - fillRect.Left) / 2);
+					fillRect.Left += (fillRect.Right - fillRect.Left) / 2;
 					break;
 				case FillDirection.VERTICAL:
 					if (i - 1 >= 0)
 					{
 						fillRects[i - 1] = LeftHalf(fillRects[i - 1]);
 					}
-					fillRect.Top += (int)((fillRect.Bottom - fillRect.Top) / 2);
+					fillRect.Top += (fillRect.Bottom - fillRect.Top) / 2;
 					break;
 			}
 			fillDirection = fillDirection == FillDirection.HORIZONTAL ? FillDirection.VERTICAL : FillDirection.HORIZONTAL;
@@ -53,20 +53,20 @@ public class Dwindle : ILayout
 		return fillRects;
 	}
 
-	public int left { get; set; }
-	public int top { get; set; }
-	public int right { get; set; }
-	public int bottom { get; set; }
-	public int inner { get; set; }
+    public int left { get; set; } = config.left;
+    public int top { get; set; } = config.top;
+    public int right { get; set; } = config.right;
+    public int bottom { get; set; } = config.bottom;
+    public int inner { get; set; } = config.inner;
 
-	RECT LeftHalf(RECT rect)
+    RECT LeftHalf(RECT rect)
 	{
-		rect.Right -= (int)((rect.Right - rect.Left) / 2);
+		rect.Right -= (rect.Right - rect.Left) / 2;
 		return rect;
 	}
 	RECT TopHalf(RECT rect)
 	{
-		rect.Bottom -= (int)((rect.Bottom - rect.Top) / 2);
+		rect.Bottom -= (rect.Bottom - rect.Top) / 2;
 		return rect;
 	}
 
@@ -90,17 +90,17 @@ public class Dwindle : ILayout
 		(int width, int height) = Utils.GetScreenSize();
 		for (int i = 0; i < fillRects.Length; i++)
 		{
-			if (fillRects[i].Left != left) fillRects[i].Left += (int)(inner / 2);
-			if (fillRects[i].Top != top) fillRects[i].Top += (int)(inner / 2);
-			if (fillRects[i].Right != width - right) fillRects[i].Right -= (int)(inner / 2);
-			if (fillRects[i].Bottom != height - bottom) fillRects[i].Bottom -= (int)(inner / 2);
+			if (fillRects[i].Left != left) fillRects[i].Left += inner / 2;
+			if (fillRects[i].Top != top) fillRects[i].Top += inner / 2;
+			if (fillRects[i].Right != width - right) fillRects[i].Right -= inner / 2;
+			if (fillRects[i].Bottom != height - bottom) fillRects[i].Bottom -= inner / 2;
 		}
 		return fillRects;
 	}
 
 	EDGE[] GetEdges(RECT rect, int screenWidth, int screenHeight)
 	{
-		List<EDGE> edges = new();
+		List<EDGE> edges = [];
 		//Console.WriteLine($"GetEdges: {rect.Left}");
 		if (rect.Left == 0) edges.Add(EDGE.LEFT);
 		if (rect.Top == 0) edges.Add(EDGE.TOP);
@@ -120,27 +120,6 @@ public class Dwindle : ILayout
 		//Console.WriteLine("edgesCount: " + edges.Length);
 		edges.ToList().ForEach(edge => Console.Write($"{edge}, "));
 
-		if (edges.Contains(direction)) return index;
-		else
-		{
-			if (direction == EDGE.LEFT || direction == EDGE.TOP)
-				return index - 1;
-			else
-				return index + 1;
-		}
-	}
-
-	public Dwindle(Config config)
-	{
-		left = config.left;
-		right = config.right;
-		top = config.top;
-		bottom = config.bottom;
-		inner = config.inner;
-	}
-}
-
-public enum EDGE
-{
-	LEFT, TOP, RIGHT, BOTTOM
+        return edges.Contains(direction) ? index : direction is EDGE.LEFT or EDGE.TOP ? index - 1 : index + 1;
+    }
 }

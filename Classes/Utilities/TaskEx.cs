@@ -34,6 +34,7 @@ public static class TaskEx
     /// <param name="frequency">The frequency at which the condition will be checked.</param>
     /// <param name="timeout">The timeout in milliseconds.</param>
     /// <returns></returns>
+    /// <exception cref="TimeoutException"></exception>
     public static async Task WaitUntil(Func<bool> condition, int frequency = 25, int timeout = -1)
     {
         var waitTask = Task.Run(async () =>
@@ -41,8 +42,7 @@ public static class TaskEx
             while (!condition()) await Task.Delay(frequency);
         });
 
-        if (waitTask != await Task.WhenAny(waitTask,
-                Task.Delay(timeout)))
+        if (waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)))
             throw new TimeoutException();
     }
 }

@@ -15,7 +15,7 @@ public class Server : IDisposable
 	public delegate string RequestEventHandler(string request);
 	public event RequestEventHandler REQUEST_RECEIVED = (request) => "";
 
-	List<Socket> clients = new();
+	List<Socket> clients = [];
 	public Server(Config config)
 	{
 		port = config.serverPort;

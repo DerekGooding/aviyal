@@ -25,8 +25,8 @@ public class Config : IJson<Config>
 	public bool workspaceAnimations = false;
 	public int serverPort = 6969;
 
-	public List<WindowRule> rules = new();
-	public List<Keymap> keymaps = new() {
+	public List<WindowRule> rules = [];
+	public List<Keymap> keymaps = [
 		// focus workspaces
 		new() { keys= [VK.LCONTROL, VK.LSHIFT, VK.L], command= COMMAND.FOCUS_NEXT_WORKSPACE },
 		new() { keys= [VK.LCONTROL, VK.LSHIFT, VK.H], command= COMMAND.FOCUS_PREVIOUS_WORKSPACE },
@@ -58,7 +58,7 @@ public class Config : IJson<Config>
 
 		new() { keys= [VK.LCONTROL, VK.LSHIFT, VK.R], command= COMMAND.RESTART },
 		new() { keys= [VK.LCONTROL, VK.LSHIFT, VK.U], command= COMMAND.UPDATE },
-	};
+	];
 
 	public string ToJson()
 	{
@@ -122,7 +122,7 @@ public class Config : IJson<Config>
 		config.floatingWindowSize = node["floatingWindowSize"].ToString();
 		config.serverPort = Convert.ToInt32(node["serverPort"].ToString());
 
-		config.rules = new();
+		config.rules = [];
 		var _rules = node["rules"].AsArray();
 		_rules.ToList().ForEach(_rule =>
 		{
@@ -136,7 +136,7 @@ public class Config : IJson<Config>
 			config.rules.Add(rule);
 		});
 
-		config.keymaps = new();
+		config.keymaps = [];
 		var _keymaps = node["keymaps"].AsArray();
 		_keymaps.ToList().ForEach(_keymap =>
 		{

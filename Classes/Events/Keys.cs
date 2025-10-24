@@ -3,7 +3,7 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using aviyal.Classes.Win32;
+using aviyal.Classes.Enums;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -30,8 +30,8 @@ public class KeyEventsListener : IDisposable
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool DispatchMessage(ref uint msg);
 
-	List<VK> captured = new();
-	List<Keymap> keymaps = new();
+	List<VK> captured = [];
+	List<Keymap> keymaps = [];
 
 	void Log(List<VK> keys, uint dt = 0, VK? key = null, string prefix = "")
 	{

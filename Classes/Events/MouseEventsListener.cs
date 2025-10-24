@@ -3,7 +3,7 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using aviyal.Classes.Win32;
+using aviyal.Classes.Enums;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 

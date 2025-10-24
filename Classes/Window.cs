@@ -1,16 +1,16 @@
 using aviyal.Classes.APIs;
+using aviyal.Classes.Enums;
 using aviyal.Classes.Structs;
-using aviyal.Classes.Win32;
 using aviyal.Interfaces;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace aviyal.Classes;
 
-public class Window : IWindow
+public class Window(nint hWnd) : IWindow
 {
 	public int workspace;
-	public nint hWnd { get; }
+    public nint hWnd { get; } = hWnd;
     public string title => Utils.GetWindowTitleFromHWND(hWnd);
     public string className => Utils.GetClassNameFromHWND(hWnd);
     public string? exe
@@ -62,21 +62,13 @@ public class Window : IWindow
 		}
 	}
 
-	public bool resizeable
-	{
-		get
-		{
-			if (!styles.HasFlag(WINDOWSTYLE.WS_THICKFRAME)) return false;
-			if (className.Contains("OperationStatusWindow") || // copy, paste status windows
-				className.Contains("DS_MODALFRAME")
-				) return false;
-			return true;
-		}
-	}
+    public bool resizeable => styles.HasFlag(WINDOWSTYLE.WS_THICKFRAME)
+                && !className.Contains("OperationStatusWindow") // copy, paste status windows
+                && !className.Contains("DS_MODALFRAME");
 
-	public bool floating { get; set; } = false;
+    public bool floating { get; set; } = false;
 
-	public int pid
+	public int Pid
 	{
 		get
 		{
@@ -84,33 +76,14 @@ public class Window : IWindow
 			return _p == null ? 0 : _p.Id;
 		}
 	}
+    //Console.WriteLine($"checking elevation of {title}: {Utils.IsProcessElevated(pid)}");
+    public bool Elevated => Utils.IsProcessElevated(Pid);
 
-	public bool elevated
-	{
-		get
-		{
-			//Console.WriteLine($"checking elevation of {title}: {Utils.IsProcessElevated(pid)}");
-			return Utils.IsProcessElevated(pid);
-		}
-	}
+    public WINDOWSTYLE styles => (WINDOWSTYLE)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
 
-	public WINDOWSTYLE styles
-	{
-		get
-		{
-			return (WINDOWSTYLE)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
-		}
-	}
+    public WINDOWSTYLEEX exStyles => (WINDOWSTYLEEX)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
 
-	public WINDOWSTYLEEX exStyles
-	{
-		get
-		{
-			return (WINDOWSTYLEEX)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-		}
-	}
-
-	public int borderThickness
+    public int BorderThickness
 	{
 		get
 		{
@@ -118,33 +91,14 @@ public class Window : IWindow
 			return info.cxWindowBorders;
 		}
 	}
+    //if (base.Equals(obj)) return true;
+    public override bool Equals(object? obj) => obj is null ? false : ((Window)obj).hWnd == hWnd;
 
-	public override bool Equals(object? obj)
-	{
-		//if (base.Equals(obj)) return true;
-		if (obj is null) return false;
-		if (((Window)obj).hWnd == hWnd) return true;
-		return false;
-	}
+    public static bool operator ==(Window? left, Window? right) => left is null ? right is null : left.Equals(right);
 
-	public static bool operator ==(Window? left, Window? right)
-	{
-		if (left is null) return right is null;
-		return left.Equals(right);
-	}
+    public static bool operator !=(Window? left, Window? right) => left is null ? right is not null : !left.Equals(right);
 
-	public static bool operator !=(Window? left, Window? right)
-	{
-		if (left is null) return right is not null;
-		return !left.Equals(right);
-	}
-
-	public Window(nint hWnd)
-	{
-		this.hWnd = hWnd;
-	}
-
-	public void Hide()
+    public void Hide()
 	{
 		ToggleAnimation(false);
 		User32.ShowWindow(hWnd, SHOWWINDOW.SW_HIDE);
@@ -163,7 +117,7 @@ public class Window : IWindow
 		User32.SetForegroundWindow(hWnd);
 	}
 
-	const SETWINDOWPOS defaultMoveFlags =
+	const SETWINDOWPOS _defaultMoveFlags =
 		SETWINDOWPOS.SWP_NOSENDCHANGING |
 		SETWINDOWPOS.SWP_NOCOPYBITS |
 		SETWINDOWPOS.SWP_ASYNCWINDOWPOS |
@@ -181,14 +135,14 @@ public class Window : IWindow
 
 		SETWINDOWPOS moveFlags = redraw switch
 		{
-			true => defaultMoveFlags,
-			false => defaultMoveFlags | SETWINDOWPOS.SWP_NOREDRAW
+			true => _defaultMoveFlags,
+			false => _defaultMoveFlags | SETWINDOWPOS.SWP_NOREDRAW
 		};
 
 		User32.SetWindowPos(hWnd, 0, pos.Left, pos.Top, pos.Right - pos.Left, pos.Bottom - pos.Top, moveFlags);
 	}
 
-	const SETWINDOWPOS slideFlag = defaultMoveFlags | SETWINDOWPOS.SWP_NOSIZE;
+	const SETWINDOWPOS slideFlag = _defaultMoveFlags | SETWINDOWPOS.SWP_NOSIZE;
 	public void Move(int? x, int? y, bool redraw = true)
 	{
 		SETWINDOWPOS moveFlag = redraw switch
@@ -199,32 +153,21 @@ public class Window : IWindow
 		User32.SetWindowPos(hWnd, 0, x ?? rect.Left, y ?? rect.Top, 0, 0, moveFlag);
 	}
 
-	public void Close()
-	{
-		User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
-	}
+    public void Close() => User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
 
-	// force the window to redraw itself
-	public void Redraw()
-	{
-		User32.RedrawWindow(hWnd, 0, 0,
-			REDRAWWINDOW.INVALIDATE |
-			REDRAWWINDOW.ALLCHILDREN |
-			REDRAWWINDOW.UPDATENOW
-		);
-	}
+    // force the window to redraw itself
+    public void Redraw() => User32.RedrawWindow
+	(hWnd, 0, 0,
+        REDRAWWINDOW.INVALIDATE |
+        REDRAWWINDOW.ALLCHILDREN |
+        REDRAWWINDOW.UPDATENOW
+    );
 
-	public void SetBottom()
-	{
-		User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_BOTTOM, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
-	}
+    public void SetBottom() => User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_BOTTOM, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
 
-	public void SetFront()
-	{
-		User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_TOP, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
-	}
+    public void SetFront() => User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_TOP, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
 
-	public void ToggleAnimation(bool flag)
+    public void ToggleAnimation(bool flag)
 	{
 		int attr = 0;
 		if (!flag) attr = 1;
@@ -263,11 +206,9 @@ public class Window : IWindow
 		return rect;
 	}
 
-	bool RectEqual(RECT a, RECT b)
-	{
-		return a.Left == b.Left &&
-			a.Top == b.Top &&
-			a.Right == b.Right &&
-			a.Bottom == b.Bottom;
-	}
+    bool RectEqual(RECT a, RECT b)
+		=> a.Left == b.Left &&
+            a.Top == b.Top &&
+            a.Right == b.Right &&
+            a.Bottom == b.Bottom;
 }

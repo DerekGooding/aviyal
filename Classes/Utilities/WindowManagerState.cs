@@ -9,7 +9,7 @@ namespace aviyal.Classes.Utilities;
 
 public class WindowManagerState : IJson<WindowManagerState>
 {
-	public List<Window> windows = new();
+	public List<Window> windows = [];
 	public int focusedWorkspaceIndex;
 	public int workspaceCount;
 
@@ -27,8 +27,8 @@ public class WindowManagerState : IJson<WindowManagerState>
 						["exe"] = wnd.exe,
 						["state"] = wnd.state.ToString(),
 						["className"] = wnd.className.ToString(),
-						["borderThickness"] = wnd.borderThickness.ToString(),
-						["elevated"] = wnd.elevated.ToString(),
+						["borderThickness"] = wnd.BorderThickness.ToString(),
+						["elevated"] = wnd.Elevated.ToString(),
 						["floating"] = wnd.floating.ToString(),
 						["resizeable"] = wnd.resizeable.ToString(),
 						["workspace"] = wnd.workspace.ToString(),

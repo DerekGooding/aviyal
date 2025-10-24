@@ -4,8 +4,8 @@
 */
 
 using aviyal.Classes.APIs;
+using aviyal.Classes.Enums;
 using aviyal.Classes.Structs;
-using aviyal.Classes.Win32;
 using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.Events;

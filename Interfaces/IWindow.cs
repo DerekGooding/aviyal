@@ -2,8 +2,8 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
+using aviyal.Classes.Enums;
 using aviyal.Classes.Structs;
-using aviyal.Classes.Win32;
 
 namespace aviyal.Interfaces;
 public interface IWindow

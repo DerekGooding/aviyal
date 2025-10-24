@@ -11,5 +11,5 @@ public class GUIProcess
 {
     public string name;
     public Process process;
-    public List<SubWindow> windows = new();
+    public List<SubWindow> windows = [];
 }
