@@ -48,20 +48,18 @@ public class Server : IDisposable
 			}
 		});
 	}
+    //Console.WriteLine($"[[[BROADCASTING TO {clients.Count}]]]");
+    public void Broadcast(string message)
+	=> clients?.ForEach(client =>
+    {
+        var bytes = Encoding.UTF8.GetBytes(message);
+        if (client.Connected) client?.Send(bytes);
+    });
 
-	public void Broadcast(string message)
+    // necessary for hot reloading (restarting)
+    public void Dispose()
 	{
-		//Console.WriteLine($"[[[BROADCASTING TO {clients.Count}]]]");
-		clients?.ForEach(client =>
-		{
-			var bytes = Encoding.UTF8.GetBytes(message);
-			if (client.Connected) client?.Send(bytes);
-		});
-	}
-
-	// necessary for hot reloading (restarting)
-	public void Dispose()
-	{
+		GC.SuppressFinalize(this);
 		clients?.ForEach(client =>
 		{
 			client?.Close();

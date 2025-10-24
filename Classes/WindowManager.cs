@@ -201,24 +201,20 @@ public class WindowManager(Config config) : IWindowManager
 		SaveState("FocusPreviousWorkspace");
 	}
 
-	public void ShiftFocusedWindowToWorkspace(int index)
-	{
-		SuppressEvents(() =>
-		{
-			if (index < 0 || index > workspaces.Count - 1) return;
-			var wnd = focusedWorkspace.focusedWindow;
-			if (wnd == null) return;
-			focusedWorkspace.Remove(wnd);
-			wnd.workspace = index;
-			workspaces[index].Add(wnd);
-			FocusWorkspace(workspaces[index]);
-			focusedWorkspace = workspaces[index];
-			wnd.Focus();
-		});
+    public void ShiftFocusedWindowToWorkspace(int index) => SuppressEvents(() =>
+    {
+        if (index < 0 || index > workspaces.Count - 1) return;
+        var wnd = focusedWorkspace.focusedWindow;
+        if (wnd == null) return;
+        focusedWorkspace.Remove(wnd);
+        wnd.workspace = index;
+        workspaces[index].Add(wnd);
+        FocusWorkspace(workspaces[index]);
+        focusedWorkspace = workspaces[index];
+        wnd.Focus();
+    });
 
-	}
-
-	public void ShiftFocusedWindowToNextWorkspace()
+    public void ShiftFocusedWindowToNextWorkspace()
 	{
 		var next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
 		ShiftFocusedWindowToWorkspace(next);
@@ -351,12 +347,9 @@ public class WindowManager(Config config) : IWindowManager
 		}
 	}
 
-	void ApplyConfigsToWindow(Window wnd)
-	{
-		wnd.floating = IsWindowInConfigRules(wnd, "floating");
-	}
+    void ApplyConfigsToWindow(Window wnd) => wnd.floating = IsWindowInConfigRules(wnd, "floating");
 
-	public void WindowShown(Window wnd)
+    public void WindowShown(Window wnd)
 	{
 		if (ShouldWindowBeIgnored(wnd)) return;
 		if (suppressEvents) return;
@@ -495,12 +488,9 @@ public class WindowManager(Config config) : IWindowManager
 		SaveState($"WindowRestored, wnd: {wnd.title}, hWnd: {wnd.hWnd}");
 	}
 
-	Workspace? GetWindowWorkspace(Window wnd)
-	{
-		return workspaces.FirstOrDefault(wksp => wksp!.windows.Contains(wnd));
-	}
+    Workspace? GetWindowWorkspace(Window wnd) => workspaces.FirstOrDefault(wksp => wksp!.windows.Contains(wnd));
 
-	public void WindowFocused(Window wnd)
+    public void WindowFocused(Window wnd)
 	{
 		if (ShouldWindowBeIgnored(wnd)) return;
 		if (suppressEvents) return;
@@ -593,12 +583,9 @@ public class WindowManager(Config config) : IWindowManager
 		return start + (int)((end - start) * progress);
 	}
 
-	public double EaseOutQuint(double x)
-	{
-		return 1 - Math.Pow(1 - x, 3);
-	}
+    public double EaseOutQuint(double x) => 1 - Math.Pow(1 - x, 3);
 
-	public async Task WorkspaceAnimate(Workspace wksp, int startX, int endX, int duration)
+    public async Task WorkspaceAnimate(Workspace wksp, int startX, int endX, int duration)
 	{
 		var fps = 60;
 		var dt = 1000 / fps; // milliseconds

@@ -179,12 +179,6 @@ public class Workspace : IWorkspace
 		Update();
 	}
 
-	public Window? GetWindowFromPoint(POINT pt)
-	{
-		return windows.FirstOrDefault(wnd =>
-		{
-			return wnd?.relRect.Left < pt.X && pt.X < wnd?.relRect.Right &&
-				   wnd?.relRect.Top < pt.Y && pt.Y < wnd?.relRect.Bottom;
-		});
-	}
+    public Window? GetWindowFromPoint(POINT pt)
+		=> windows.FirstOrDefault(wnd => wnd?.relRect.Left < pt.X && pt.X < wnd?.relRect.Right && wnd?.relRect.Top < pt.Y && pt.Y < wnd?.relRect.Bottom);
 }

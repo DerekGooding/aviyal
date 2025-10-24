@@ -72,10 +72,7 @@ public static class Utils
         User32.SetWindowPos(hWnd, nint.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
     }
 
-    public static void MoveWindow(nint hWnd, int x, int y)
-    {
-        User32.SetWindowPos(hWnd, nint.Zero, x, y, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
-    }
+    public static void MoveWindow(nint hWnd, int x, int y) => User32.SetWindowPos(hWnd, nint.Zero, x, y, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
 
     public static string GetClassNameFromHWND(nint hWnd)
     {
