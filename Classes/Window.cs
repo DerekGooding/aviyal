@@ -11,22 +11,9 @@ public class Window : IWindow
 {
 	public int workspace;
 	public nint hWnd { get; }
-	public string title
-	{
-		get
-		{
-			return Utils.GetWindowTitleFromHWND(this.hWnd);
-		}
-	}
-
-	public string className
-	{
-		get
-		{
-			return Utils.GetClassNameFromHWND(this.hWnd);
-		}
-	}
-	public string? exe
+    public string title => Utils.GetWindowTitleFromHWND(hWnd);
+    public string className => Utils.GetClassNameFromHWND(hWnd);
+    public string? exe
 	{
 		get
 		{
@@ -34,11 +21,11 @@ public class Window : IWindow
 			// for a process once its found
 			if (field == null)
 			{
-				field = Utils.GetExePathFromHWND(this.hWnd) ??
+				field = Utils.GetExePathFromHWND(hWnd) ??
 						Utils.EnumWindowProcesses()
 						.FirstOrDefault(wndProcess => wndProcess
 										.windows.Select(wndp => wndp.hWnd)
-						.Contains(this.hWnd))?
+						.Contains(hWnd))?
 						.process.MainModule?.FileName;
 			}
 			return field;
@@ -56,7 +43,7 @@ public class Window : IWindow
 	{
 		get
 		{
-			User32.GetWindowRect(this.hWnd, out RECT _rect);
+			User32.GetWindowRect(hWnd, out RECT _rect);
 			return _rect;
 		}
 	}
@@ -68,7 +55,7 @@ public class Window : IWindow
 		get
 		{
 			WINDOWPLACEMENT wndPlmnt = new();
-			User32.GetWindowPlacement(this.hWnd, ref wndPlmnt);
+			User32.GetWindowPlacement(hWnd, ref wndPlmnt);
 			var state = (SHOWWINDOW)wndPlmnt.showCmd;
 			//Console.WriteLine($"state: {state}");
 			return state;
@@ -79,9 +66,9 @@ public class Window : IWindow
 	{
 		get
 		{
-			if (!this.styles.HasFlag(WINDOWSTYLE.WS_THICKFRAME)) return false;
-			if (this.className.Contains("OperationStatusWindow") || // copy, paste status windows
-				this.className.Contains("DS_MODALFRAME")
+			if (!styles.HasFlag(WINDOWSTYLE.WS_THICKFRAME)) return false;
+			if (className.Contains("OperationStatusWindow") || // copy, paste status windows
+				className.Contains("DS_MODALFRAME")
 				) return false;
 			return true;
 		}
@@ -111,7 +98,7 @@ public class Window : IWindow
 	{
 		get
 		{
-			return (WINDOWSTYLE)User32.GetWindowLong(this.hWnd, GETWINDOWLONG.GWL_STYLE);
+			return (WINDOWSTYLE)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
 		}
 	}
 
@@ -119,7 +106,7 @@ public class Window : IWindow
 	{
 		get
 		{
-			return (WINDOWSTYLEEX)User32.GetWindowLong(this.hWnd, GETWINDOWLONG.GWL_EXSTYLE);
+			return (WINDOWSTYLEEX)User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
 		}
 	}
 
@@ -127,7 +114,7 @@ public class Window : IWindow
 	{
 		get
 		{
-			User32.GetWindowInfo(this.hWnd, out WINDOWINFO info);
+			User32.GetWindowInfo(hWnd, out WINDOWINFO info);
 			return info.cxWindowBorders;
 		}
 	}
@@ -136,7 +123,7 @@ public class Window : IWindow
 	{
 		//if (base.Equals(obj)) return true;
 		if (obj is null) return false;
-		if (((Window)obj).hWnd == this.hWnd) return true;
+		if (((Window)obj).hWnd == hWnd) return true;
 		return false;
 	}
 
@@ -160,20 +147,20 @@ public class Window : IWindow
 	public void Hide()
 	{
 		ToggleAnimation(false);
-		User32.ShowWindow(this.hWnd, SHOWWINDOW.SW_HIDE);
+		User32.ShowWindow(hWnd, SHOWWINDOW.SW_HIDE);
 		ToggleAnimation(true);
 	}
 	public void Show()
 	{
 		ToggleAnimation(false);
-		User32.ShowWindow(this.hWnd, SHOWWINDOW.SW_SHOWNA);
+		User32.ShowWindow(hWnd, SHOWWINDOW.SW_SHOWNA);
 		ToggleAnimation(true);
 	}
 
 	public void Focus()
 	{
 		User32.keybd_event(0, 0, 0, Globals.FOREGROUND_FAKE_KEY);
-		User32.SetForegroundWindow(this.hWnd);
+		User32.SetForegroundWindow(hWnd);
 	}
 
 	const SETWINDOWPOS defaultMoveFlags =
@@ -198,7 +185,7 @@ public class Window : IWindow
 			false => defaultMoveFlags | SETWINDOWPOS.SWP_NOREDRAW
 		};
 
-		User32.SetWindowPos(this.hWnd, 0, pos.Left, pos.Top, pos.Right - pos.Left, pos.Bottom - pos.Top, moveFlags);
+		User32.SetWindowPos(hWnd, 0, pos.Left, pos.Top, pos.Right - pos.Left, pos.Bottom - pos.Top, moveFlags);
 	}
 
 	const SETWINDOWPOS slideFlag = defaultMoveFlags | SETWINDOWPOS.SWP_NOSIZE;
@@ -209,18 +196,18 @@ public class Window : IWindow
 			true => slideFlag,
 			false => slideFlag | SETWINDOWPOS.SWP_NOREDRAW
 		};
-		User32.SetWindowPos(this.hWnd, 0, x ?? rect.Left, y ?? rect.Top, 0, 0, moveFlag);
+		User32.SetWindowPos(hWnd, 0, x ?? rect.Left, y ?? rect.Top, 0, 0, moveFlag);
 	}
 
 	public void Close()
 	{
-		User32.SendMessage(this.hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
+		User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
 	}
 
 	// force the window to redraw itself
 	public void Redraw()
 	{
-		User32.RedrawWindow(this.hWnd, 0, 0,
+		User32.RedrawWindow(hWnd, 0, 0,
 			REDRAWWINDOW.INVALIDATE |
 			REDRAWWINDOW.ALLCHILDREN |
 			REDRAWWINDOW.UPDATENOW
@@ -229,29 +216,29 @@ public class Window : IWindow
 
 	public void SetBottom()
 	{
-		User32.SetWindowPos(this.hWnd, (nint)SWPZORDER.HWND_BOTTOM, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
+		User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_BOTTOM, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
 	}
 
 	public void SetFront()
 	{
-		User32.SetWindowPos(this.hWnd, (nint)SWPZORDER.HWND_TOP, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
+		User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_TOP, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
 	}
 
 	public void ToggleAnimation(bool flag)
 	{
 		int attr = 0;
 		if (!flag) attr = 1;
-		int res = Dwmapi.DwmSetWindowAttribute(this.hWnd, DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED, ref attr, sizeof(int));
+		int res = Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED, ref attr, sizeof(int));
 		////Console.WriteLine($"ToggleAnimation(): {res}");
 	}
 
 	public RECT GetFrameMargin()
 	{
-		User32.GetWindowRect(this.hWnd, out RECT rect);
+		User32.GetWindowRect(hWnd, out RECT rect);
 		//Console.WriteLine($"GWR [L: {rect.Left} R: {rect.Right} T: {rect.Top} B:{rect.Bottom}]");
 		int size = Marshal.SizeOf<RECT>();
 		nint rectPtr = Marshal.AllocHGlobal(size);
-		Dwmapi.DwmGetWindowAttribute(this.hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, rectPtr, (uint)size);
+		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, rectPtr, (uint)size);
 		RECT rect2 = Marshal.PtrToStructure<RECT>(rectPtr);
 		Marshal.FreeHGlobal(rectPtr);
 		//Console.WriteLine($"DWM [L: {rect2.Left} R: {rect2.Right} T: {rect2.Top} B:{rect2.Bottom}]");

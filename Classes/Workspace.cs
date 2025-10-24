@@ -39,7 +39,7 @@ public class Workspace : IWorkspace
 	public override bool Equals(object? obj)
 	{
 		if (obj is null) return this is null;
-		if (((Workspace)obj).id == this.id) return true;
+		if (((Workspace)obj).id == id) return true;
 		return false;
 	}
 

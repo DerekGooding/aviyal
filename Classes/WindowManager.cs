@@ -43,11 +43,11 @@ public class WindowManager : IWindowManager
 	{
 		if (initWindows == null)
 		{
-			this.initWindows = GetVisibleWindows()!;
-			this.initWindows = this.initWindows
+			initWindows = GetVisibleWindows()!;
+			initWindows = initWindows
 						  .Where(wnd => !ShouldWindowBeIgnored(wnd))
 						  .ToList();
-			this.initWindows.ForEach(wnd => ApplyConfigsToWindow(wnd));
+			initWindows.ForEach(wnd => ApplyConfigsToWindow(wnd));
 		}
 
 		// when running in debug mode, only window containing the title "windowgen" will 
@@ -55,7 +55,7 @@ public class WindowManager : IWindowManager
 		// while testing
 		if (DEBUG)
 		{
-			this.initWindows = this.initWindows.Where(wnd => wnd.title.Contains("windowgen")).ToList();
+			initWindows = initWindows.Where(wnd => wnd.title.Contains("windowgen")).ToList();
 		}
 		//initWindows.ForEach(wnd => //Console.WriteLine($"Title: {wnd.title}, hWnd: {wnd.hWnd}"));
 
@@ -66,7 +66,7 @@ public class WindowManager : IWindowManager
 			workspaces.Add(wksp);
 		}
 		// add all windows to 1st workspace
-		this.initWindows.ForEach(wnd =>
+		initWindows.ForEach(wnd =>
 		{
 			wnd.workspace = 0;
 			workspaces.FirstOrDefault()?.windows.Add(wnd);

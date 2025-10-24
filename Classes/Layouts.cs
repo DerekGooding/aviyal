@@ -132,11 +132,11 @@ public class Dwindle : ILayout
 
 	public Dwindle(Config config)
 	{
-		this.left = config.left;
-		this.right = config.right;
-		this.top = config.top;
-		this.bottom = config.bottom;
-		this.inner = config.inner;
+		left = config.left;
+		right = config.right;
+		top = config.top;
+		bottom = config.bottom;
+		inner = config.inner;
 	}
 }
 

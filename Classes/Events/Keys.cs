@@ -127,7 +127,7 @@ public class KeyEventsListener : IDisposable
 	Thread thread;
 	public KeyEventsListener(Config config)
 	{
-		this.keymaps = config.keymaps;
+		keymaps = config.keymaps;
 
 		thread = new(Loop);
 		thread.Start();
