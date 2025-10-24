@@ -8,12 +8,13 @@ namespace aviyal.Classes.Enums;
 [Flags]
 public enum SETWINDOWPOS : uint
 {
-	/// <summary>
-	/// If the calling thread and the thread that owns the window are attached to different input queues, 
-	/// the system posts the request to the thread that owns the window. This prevents the calling thread 
-	/// from blocking its execution while other threads process the request.
-	/// </summary>
-	SWP_ASYNCWINDOWPOS = 0x4000,
+    None = 0,
+    /// <summary>
+    /// If the calling thread and the thread that owns the window are attached to different input queues, 
+    /// the system posts the request to the thread that owns the window. This prevents the calling thread 
+    /// from blocking its execution while other threads process the request.
+    /// </summary>
+    SWP_ASYNCWINDOWPOS = 0x4000,
 
 	/// <summary>
 	/// Prevents generation of the WM_SYNCPAINT message.
@@ -25,12 +26,12 @@ public enum SETWINDOWPOS : uint
 	/// </summary>
 	SWP_DRAWFRAME = 0x0020,
 
-	/// <summary>
-	/// Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message 
-	/// to the window, even if the window's size is not being changed. If this flag is not specified, 
-	/// WM_NCCALCSIZE is sent only when the window's size is being changed.
-	/// </summary>
-	SWP_FRAMECHANGED = 0x0020,
+    /// <summary>
+    /// Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message 
+    /// to the window, even if the window's size is not being changed. If this flag is not specified, 
+    /// WM_NCCALCSIZE is sent only when the window's size is being changed.
+    /// </summary>
+    SWP_FRAMECHANGED = 0x0020,
 
 	/// <summary>
 	/// Hides the window.

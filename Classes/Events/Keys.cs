@@ -135,7 +135,8 @@ public class KeyEventsListener : IDisposable
 
 	public void Dispose()
 	{
-		UnhookWindowsHookEx(hhook);
+		GC.SuppressFinalize(this);
+        UnhookWindowsHookEx(hhook);
 		running = false;
 	}
 }

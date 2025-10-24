@@ -106,7 +106,7 @@ public class Dwindle(Config config) : ILayout
 		if (rect.Top == 0) edges.Add(EDGE.TOP);
 		if (rect.Right == screenWidth) edges.Add(EDGE.RIGHT);
 		if (rect.Bottom == screenHeight) edges.Add(EDGE.BOTTOM);
-		return edges.ToArray();
+		return [.. edges];
 	}
 
 	public int? GetAdjacent(int index, EDGE direction)

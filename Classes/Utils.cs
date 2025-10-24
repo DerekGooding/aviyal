@@ -45,7 +45,9 @@ public static class Utils
     {
         var styleList = GetStylesFromHwnd(hWnd);
         //Logger.Log($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
-        if (styleList.Contains("WS_POPUP")) return true;
+        if (styleList.Contains("WS_POPUP")) {
+            return true;
+        }
 
         var className = GetClassNameFromHWND(hWnd);
         return className is "#32768" or "#32770" or "SysListView32"
@@ -176,7 +178,7 @@ public static class Utils
         List<string> driveDevicePaths = [];
         List<string> driveNames = [];
         Dictionary<string, string> devicePathToDrivePath = [];
-        driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
+        driveNames = [.. DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2))];
         driveDevicePaths = driveNames.ConvertAll(drive =>
         {
             StringBuilder str = new(256);
@@ -339,14 +341,17 @@ public static class Utils
     }
 
     /// <summary>
+    /// <para>
     /// Make a window bottom most and stick to desktop by making it unfocusable
     /// This is required especially for creating widget windows that need to 
     /// always be on the background and never recieve focus. This is done by 
     /// adding the WS_EX_NOACTIVATE style.
-    ///
+    /// </para>
+    /// <para>
     /// Still can flicker at activation and gain focus from alt tab selection,
     /// if the window is hidden in alt tab this shouldnt be a concern, however
     /// to avoid these problems sambar.WidgetWindow exists.
+    /// </para>
     /// </summary>
     public static void StickWindowToBottom(nint hWnd)
     {

@@ -45,9 +45,7 @@ public class WindowManager : IWindowManager
 		if (initWindows == null)
 		{
 			initWindows = GetVisibleWindows()!;
-			initWindows = initWindows
-						  .Where(wnd => !ShouldWindowBeIgnored(wnd))
-						  .ToList();
+			initWindows = [.. initWindows.Where(wnd => !ShouldWindowBeIgnored(wnd))];
 			initWindows.ForEach(wnd => ApplyConfigsToWindow(wnd));
 		}
 
@@ -56,7 +54,7 @@ public class WindowManager : IWindowManager
 		// while testing
 		if (DEBUG)
 		{
-			initWindows = initWindows.Where(wnd => wnd.title.Contains("windowgen")).ToList();
+			initWindows = [.. initWindows.Where(wnd => wnd.title.Contains("windowgen"))];
 		}
 		//initWindows.ForEach(wnd => //Console.WriteLine($"Title: {wnd.title}, hWnd: {wnd.hWnd}"));
 
@@ -283,9 +281,12 @@ public class WindowManager : IWindowManager
 		var isOverlapped = ((uint)wnd.styles & ((uint)WINDOWSTYLE.WS_POPUP | (uint)WINDOWSTYLE.WS_CHILD)) == 0;
 		if (!isOverlapped &&
 		   !wnd.styles.HasFlag(WINDOWSTYLE.WS_POPUP)
-		) return true;
+		)
+        {
+            return true;
+        }
 
-		if (wnd.exStyles.HasFlag(WINDOWSTYLEEX.WS_EX_TOOLWINDOW)) return true;
+        if (wnd.exStyles.HasFlag(WINDOWSTYLEEX.WS_EX_TOOLWINDOW)) return true;
 		if (wnd.exStyles.HasFlag(WINDOWSTYLEEX.WS_EX_TOPMOST)) return true;
 
 		if (wnd.className == null || wnd.className == "") return true;
@@ -294,22 +295,31 @@ public class WindowManager : IWindowManager
 			!wnd.styles.HasFlag(WINDOWSTYLE.WS_SYSMENU) &&
 			(wnd.rect.Bottom - wnd.rect.Top < 50 ||
 			 wnd.rect.Right - wnd.rect.Left < 50)
-			) return true; // dialogs
+			)
+        {
+            return true; // dialogs
+        }
 
-		// tooltips
-		// https://learn.microsoft.com/en-us/windows/win32/controls/common-control-window-classes
-		if (wnd.className.Contains("MicrosoftWindowsTooltip") ||
+        // tooltips
+        // https://learn.microsoft.com/en-us/windows/win32/controls/common-control-window-classes
+        if (wnd.className.Contains("MicrosoftWindowsTooltip") ||
 			wnd.className.Contains("tooltips_class32")
-			) return true;
+			)
+        {
+            return true;
+        }
 
-		// menus
-		// https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-classes
-		if (wnd.className.Contains("#32768") ||
+        // menus
+        // https://learn.microsoft.com/en-us/windows/win32/winmsg/about-window-classes
+        if (wnd.className.Contains("#32768") ||
 			wnd.className.Contains("#32772")
-			) return true;
+			)
+        {
+            return true;
+        }
 
-		// filter out windows without the normal/default border thickness
-		const int SM_CXSIZEFRAME = 32;
+        // filter out windows without the normal/default border thickness
+        const int SM_CXSIZEFRAME = 32;
 		if (wnd.BorderThickness < User32.GetSystemMetrics(SM_CXSIZEFRAME))
 			return true;
 
@@ -356,21 +366,22 @@ public class WindowManager : IWindowManager
 	{
 		if (ShouldWindowBeIgnored(wnd)) return;
 		if (suppressEvents) return;
-		foreach (var wksp in workspaces)
-			if (wksp!.windows.Contains(wnd))
-			{
-				// This is for cases where an already added window gets focused without direct interaction
-				// for eg say you click a link on your terminal and your default browser is open
-				// in another workspace. The reason why we are handling it here instead of
-				// WindowFocused is because the event emmited is OBJECT_SHOW rather than
-				// EVENT_FOREGROUND_CHANGED
-				if (wksp != focusedWorkspace) FocusWorkspace(wksp);
-				return;
-			}
+        foreach (var wksp in from wksp in workspaces
+                             where wksp!.windows.Contains(wnd)
+                             select wksp)
+        {
+            // This is for cases where an already added window gets focused without direct interaction
+            // for eg say you click a link on your terminal and your default browser is open
+            // in another workspace. The reason why we are handling it here instead of
+            // WindowFocused is because the event emmited is OBJECT_SHOW rather than
+            // EVENT_FOREGROUND_CHANGED
+            if (wksp != focusedWorkspace) FocusWorkspace(wksp);
+            return;
+        }
 
-		// Add() and CleanGhostWindows() can cause windows to be re added if they
-		// occur while the other hasnt completed, so lock them
-		lock (@addLock)
+        // Add() and CleanGhostWindows() can cause windows to be re added if they
+        // occur while the other hasnt completed, so lock them
+        lock (@addLock)
 		{
 			ApplyConfigsToWindow(wnd);
 			wnd.workspace = focusedWorkspaceIndex;
@@ -604,7 +615,7 @@ public class WindowManager : IWindowManager
 		for (var i = 0; i < frames; i++)
 		{
 			wksp.Move(GetX(startX, endX, frames, i), null, redraw: false); // not drawn, so must be manually redrawn once finished
-			var wait = (int)(i * dt - sw.ElapsedMilliseconds);
+			var wait = (int)((i * dt) - sw.ElapsedMilliseconds);
 			wait = wait < 0 ? 0 : wait;
 			await Task.Delay(wait);
 		}

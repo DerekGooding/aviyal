@@ -63,7 +63,7 @@ public class Workspace : IWorkspace
 
 		// non floating
 		var relRects = layout.GetRects(nonFloating.Count);
-		var rects = layout.ApplyInner(layout.ApplyOuter(relRects.ToArray()));
+		var rects = layout.ApplyInner(layout.ApplyOuter([.. relRects]));
 		for (var i = 0; i < nonFloating.Count; i++)
 		{
 			nonFloating[i]?.Move(rects[i]);

@@ -35,7 +35,7 @@ public class Server : IDisposable
 					{
 						var buffer = new byte[1024];
 						var bytesRead = client.Receive(buffer);
-						var request = Encoding.UTF8.GetString(buffer.Take(bytesRead).ToArray());
+						var request = Encoding.UTF8.GetString([.. buffer.Take(bytesRead)]);
 						var response = REQUEST_RECEIVED(request);
 						var bytes = Encoding.UTF8.GetBytes(response);
 						client.Send(bytes);
