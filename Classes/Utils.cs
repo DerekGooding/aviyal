@@ -11,6 +11,8 @@ using System.Net.Sockets;
 using System.Net;
 using aviyal.Classes.Win32;
 using aviyal.Classes.Utilities;
+using aviyal.Classes.APIs;
+using aviyal.Classes.Structs;
 
 namespace aviyal.Classes;
 
@@ -129,13 +131,13 @@ public partial class Utils
                 guiProcesses.Add(guiProcess);
             }
             guiProcess.process = process;
-            _Window window = new();
+            SubWindow window = new();
             window.hWnd = hWnd;
             window.className = GetClassNameFromHWND(hWnd);
             guiProcess.windows.Add(window);
             EnumWindowProc enumChildWindowProc = (c_hWnd, lParam) =>
             {
-                _Window c_window = new();
+                SubWindow c_window = new();
                 c_window.hWnd = c_hWnd;
                 c_window.className = GetClassNameFromHWND(c_hWnd);
                 guiProcess.windows.Add(c_window);

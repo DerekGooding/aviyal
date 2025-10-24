@@ -166,11 +166,3 @@ public class Config : IJson<Config>
 	}
 }
 
-public class WindowRule
-{
-	public string type; // ignore, notiling, startfloating
-	public string method; // equals, contains
-	public string identifierType; // windowProcess, windowTitle, windowClass
-	public string identifier; // search string
-}
-

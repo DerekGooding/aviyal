@@ -3,24 +3,7 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
-using System.Diagnostics;
-
 namespace aviyal.Classes.Utilities;
-
-
-public class _Window
-{
-    public string name;
-    public string className;
-    public nint hWnd;
-}
-
-public class GUIProcess
-{
-    public string name;
-    public Process process;
-    public List<_Window> windows = new();
-}
 
 // https://stackoverflow.com/a/52357854
 public static class TaskEx

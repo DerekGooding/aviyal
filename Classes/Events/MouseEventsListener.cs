@@ -85,19 +85,5 @@ public class MouseEventsListener : IDisposable
 	}
 }
 
-public class MouseEvent
-{
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct MSLLHOOKSTRUCT
-{
-	POINT pt;
-	uint mouseData;
-	uint flags;
-	uint time;
-	nint dwExtraInfo;
-}
-
 
 

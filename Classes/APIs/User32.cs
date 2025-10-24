@@ -3,10 +3,12 @@
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
+using aviyal.Classes.Structs;
+using aviyal.Classes.Win32;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace aviyal.Classes.Win32;
+namespace aviyal.Classes.APIs;
 
 public static class User32
 {
@@ -205,152 +207,5 @@ public static class User32
 
     [DllImport("user32.dll")]
     public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
-}
-
-
-public class Shell32
-{
-	[DllImport("shell32.dll", SetLastError = true)]
-	public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
-
-	[DllImport("shell32.dll", SetLastError = true)]
-	public static extern long Shell_NotifyIconGetRect(ref _NOTIFYICONIDENTIFIER identifier, out RECT iconLocation);
-
-	[DllImport("shell32.dll", SetLastError = true)]
-	public static extern uint ExtractIconEx(string exePath, int nIconIndex, out nint iconLarge, out nint iconSmall, uint nIcons);
-}
-
-public class Kernel32
-{
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern bool AttachConsole(int processId);
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern bool FreeConsole();
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint GetConsoleWindow();
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint GetModuleHandle(string moduleName);
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint OpenProcess(uint processAccess, bool bInheritHandle, int processId);
-
-	[DllImport("kernel32.dll")]
-	public static extern uint GetLogicalDriveStringsW(
-	  uint nBufferLength,
-	  StringBuilder lpBuffer
-	);
-
-	[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern uint QueryDosDevice(
-	  string lpDeviceName,
-	  StringBuilder lpTargetPath,
-	  uint ucchMax
-	);
-
-	[DllImport("kernel32.dll")]
-	public static extern uint GetCurrentThreadId();
-
-}
-
-public class Advapi32
-{
-	[DllImport("advapi32.dll", SetLastError = true)]
-	public static extern int OpenProcessToken(nint handle, uint processAccess, out nint tokenHandle);
-
-	[DllImport("advapi32.dll", SetLastError = true)]
-	public static extern int GetTokenInformation(nint handle, TOKEN_INFORMATION_CLASS informationClass, ref TOKEN_ELEVATION info, uint infoSize, out uint returnLength);
-}
-
-public class Dwmapi
-{
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmSetWindowAttribute(nint hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
-
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmGetWindowAttribute(
-		nint hWnd,
-		uint dwAttribute,
-		nint pvAttribute,
-		uint cbAttribute
-	);
-
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmGetWindowAttribute(
-		nint hWnd,
-		uint dwAttribute,
-		out uint pvAttribute,
-		uint cbAttribute
-	);
-}
-
-public class Psapi
-{
-	[DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
-}
-
-/// <summary>
-/// Query kernel objects
-/// </summary>
-public class Ntdll
-{
-	[DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern int NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS infoType, ref SYSTEM_PROCESS_ID_INFORMATION info, uint infoLength, out uint returnLength);
-
-	[DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern int NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS infoType, ref SYSTEM_BASIC_INFORMATION info, uint infoLength, out uint returnLength);
-
-	[DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern int NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS infoType, nint info, uint infoLength, out uint returnLength);
-
-}
-
-public class Shcore
-{
-	// retrieves monitor scaling info
-	// MONITOR_DEFAULTTONULL
-	// 0x00000000
-	// Returns NULL.
-	// MONITOR_DEFAULTTOPRIMARY
-	// 0x00000001
-	// Returns a handle to the primary display monitor.
-	// MONITOR_DEFAULTTONEAREST
-	// 0x00000002
-	// Returns a handle to the display monitor that is nearest to the point.
-	[DllImport("shcore.dll", SetLastError = true)]
-	public static extern int GetScaleFactorForMonitor(nint hMon, out DEVICE_SCALE_FACTOR scaleFactor);
-
-	// will only return the correct dpi if calling process is dpi aware
-	// specifically PROCESS_DPI_AWARENESS.PROCESS_PER_MONITOR_DPI_AWARE
-	// https://stackoverflow.com/a/70020835/14588925
-	[DllImport("shcore.dll", SetLastError = true)]
-	public static extern int GetDpiForMonitor(nint hMon, MONITOR_DPI_TYPE dpiType, out uint dpiX, out uint dpiY);
-
-	// call this with PROCESS_DPI_AWARENESS.PROCESS_PER_MONITOR_DPI_AWARE
-	// so that all functions like GetSystemMetric() and GetDpiForMonitor()
-	// returns the actual/correct values
-	[DllImport("shcore.dll", SetLastError = true)]
-	public static extern int SetProcessDpiAwareness(PROCESS_DPI_AWARENESS value);
-}
-
-public class Iphlpapi
-{
-	/// <summary>
-	/// https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-getipnetworkconnectionbandwidthestimates
-	/// </summary>
-	/// <param name="interfaceIndex"></param>
-	/// <param name="adressFamily"></param>
-	/// <param name="info"></param>
-	/// <returns></returns>
-	[DllImport("iphlpapi.dll", SetLastError = true)]
-	public static extern int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
-}
-
-public class Winmm
-{
 
 }

@@ -2,7 +2,7 @@
 	MIT License
     Copyright (c) 2025 Ajaykrishnan R	
 */
-using aviyal.Classes.Win32;
+using aviyal.Classes.Structs;
 using aviyal.Interfaces;
 
 namespace aviyal.Classes;
