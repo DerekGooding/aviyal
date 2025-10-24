@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.APIs;
 
-public class Iphlpapi
+public partial class Iphlpapi
 {
 	/// <summary>
 	/// https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-getipnetworkconnectionbandwidthestimates
@@ -18,6 +18,6 @@ public class Iphlpapi
 	/// <param name="adressFamily"></param>
 	/// <param name="info"></param>
 	/// <returns></returns>
-	[DllImport("iphlpapi.dll", SetLastError = true)]
-	public static extern int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
+	[LibraryImport("iphlpapi.dll", SetLastError = true)]
+	public static partial int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
 }

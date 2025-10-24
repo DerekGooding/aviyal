@@ -22,8 +22,8 @@ public class Config : IJson<Config>
 	public int inner { get; set; } = 5;
 	public int workspaces { get; set; } = 9;
 	public string floatingWindowSize { get; set; } = "800x400";
-	public bool workspaceAnimations = false;
-	public int serverPort = 6969;
+	public bool workspaceAnimations;
+    public int serverPort = 6969;
 
 	public List<WindowRule> rules = [];
 	public List<Keymap> keymaps = [
@@ -154,10 +154,7 @@ public class Config : IJson<Config>
 			Enum.TryParse(_command, true, out keymap.command);
 			// arguments
 			var _arguments = _keymap["arguments"].AsArray();
-			_arguments.ToList().ForEach(_arg =>
-			{
-				keymap.arguments.Add(_arg.ToString());
-			});
+			_arguments.ToList().ForEach(_arg => keymap.arguments.Add(_arg.ToString()));
 
 			config.keymaps.Add(keymap);
 		});

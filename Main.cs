@@ -192,10 +192,10 @@ class Aviyal : IDisposable
 		aviyal.wm.Start();
 	}
 
-	static bool errored = false;
-	static bool running = false;
-	static int reloadCount = 0;
-	static void Loop()
+	static bool errored;
+    static bool running;
+    static int reloadCount;
+    static void Loop()
 	{
 		do
 		{

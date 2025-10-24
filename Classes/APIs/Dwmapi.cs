@@ -8,21 +8,21 @@ using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.APIs;
 
-public class Dwmapi
+public partial class Dwmapi
 {
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmSetWindowAttribute(nint hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+	[LibraryImport("dwmapi.dll", SetLastError = true)]
+	public static partial int DwmSetWindowAttribute(nint hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
 
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmGetWindowAttribute(
+	[LibraryImport("dwmapi.dll", SetLastError = true)]
+	public static partial int DwmGetWindowAttribute(
 		nint hWnd,
 		uint dwAttribute,
 		nint pvAttribute,
 		uint cbAttribute
 	);
 
-	[DllImport("dwmapi.dll", SetLastError = true)]
-	public static extern int DwmGetWindowAttribute(
+	[LibraryImport("dwmapi.dll", SetLastError = true)]
+	public static partial int DwmGetWindowAttribute(
 		nint hWnd,
 		uint dwAttribute,
 		out uint pvAttribute,

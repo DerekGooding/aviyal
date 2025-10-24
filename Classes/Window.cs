@@ -66,9 +66,9 @@ public class Window(nint hWnd) : IWindow
                 && !className.Contains("OperationStatusWindow") // copy, paste status windows
                 && !className.Contains("DS_MODALFRAME");
 
-    public bool floating { get; set; } = false;
+    public bool floating { get; set; }
 
-	public int Pid
+    public int Pid
 	{
 		get
 		{

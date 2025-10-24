@@ -8,22 +8,24 @@ using System.Text;
 
 namespace aviyal.Classes.APIs;
 
-public class Kernel32
+public partial class Kernel32
 {
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern bool AttachConsole(int processId);
+	[LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool AttachConsole(int processId);
 
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern bool FreeConsole();
+	[LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool FreeConsole();
 
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint GetConsoleWindow();
+	[LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	public static partial nint GetConsoleWindow();
 
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint GetModuleHandle(string moduleName);
+	[LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	public static partial nint GetModuleHandle(string moduleName);
 
-	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern nint OpenProcess(uint processAccess, bool bInheritHandle, int processId);
+	[LibraryImport("kernel32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+	public static partial nint OpenProcess(uint processAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int processId);
 
 	[DllImport("kernel32.dll")]
 	public static extern uint GetLogicalDriveStringsW(
@@ -38,7 +40,7 @@ public class Kernel32
 	  uint ucchMax
 	);
 
-	[DllImport("kernel32.dll")]
-	public static extern uint GetCurrentThreadId();
+	[LibraryImport("kernel32.dll")]
+	public static partial uint GetCurrentThreadId();
 
 }

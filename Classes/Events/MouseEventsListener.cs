@@ -8,27 +8,29 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.Events;
-public class MouseEventsListener : IDisposable
+public partial class MouseEventsListener : IDisposable
 {
 	delegate int MouseProc(int code, nint wparam, nint lparam);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern nint SetWindowsHookExA(int idHook, MouseProc lpfn, nint hmod, uint dwThreadId);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial nint SetWindowsHookExA(int idHook, MouseProc lpfn, nint hmod, uint dwThreadId);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern int UnhookWindowsHookEx(nint hhook);
+	[LibraryImport("user32.dll", SetLastError = true)]
+    private static partial int UnhookWindowsHookEx(nint hhook);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern int CallNextHookEx(nint hhk, int nCode, nint wparam, nint lparam);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial int CallNextHookEx(nint hhk, int nCode, nint wparam, nint lparam);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern int GetMessage(out uint msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	public static partial int GetMessage(out uint msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool TranslateMessage(ref uint msg);
+	[LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool TranslateMessage(ref uint msg);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool DispatchMessage(ref uint msg);
+	[LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DispatchMessage(ref uint msg);
 
 	readonly Lock @eventLock = new();
 	int MouseCallback(int code, nint wparam, nint lparam)

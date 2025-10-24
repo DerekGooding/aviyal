@@ -8,27 +8,29 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.Events;
-public class KeyEventsListener : IDisposable
+public partial class KeyEventsListener : IDisposable
 {
 	delegate int KeyboardProc(int code, nint wparam, nint lparam);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern nint SetWindowsHookExA(int idHook, KeyboardProc lpfn, nint hmod, uint dwThreadId);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial nint SetWindowsHookExA(int idHook, KeyboardProc lpfn, nint hmod, uint dwThreadId);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern int UnhookWindowsHookEx(nint hhook);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial int UnhookWindowsHookEx(nint hhook);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern int CallNextHookEx(nint hhk, int nCode, nint wparam, nint lparam);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial int CallNextHookEx(nint hhk, int nCode, nint wparam, nint lparam);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern int GetMessage(out uint msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	public static partial int GetMessage(out uint msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool TranslateMessage(ref uint msg);
+	[LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool TranslateMessage(ref uint msg);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool DispatchMessage(ref uint msg);
+	[LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DispatchMessage(ref uint msg);
 
 	List<VK> captured = [];
 	List<Keymap> keymaps = [];
@@ -46,8 +48,8 @@ public class KeyEventsListener : IDisposable
 	// required for the window events as no such lists exists for that and we can
 	// adopt a fire and forget mechanism for them
 	private readonly Lock @eventLock = new();
-	uint lastKeyTime = 0;
-	VK? lastKey; // the trailing key of a hotkey action -> H in Ctrl+Shift+H
+	uint lastKeyTime;
+    VK? lastKey; // the trailing key of a hotkey action -> H in Ctrl+Shift+H
 	bool letKeyPass = true;
 	int KeyboardCallback(int code, nint wparam, nint lparam)
 	{

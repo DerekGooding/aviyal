@@ -9,7 +9,7 @@ using aviyal.Classes.Structs;
 using System.Runtime.InteropServices;
 
 namespace aviyal.Classes.Events;
-public class WindowEventsListener : IDisposable
+public partial class WindowEventsListener : IDisposable
 {
 	delegate void WINEVENTPROC(
 		nint hWinEventHook,
@@ -21,8 +21,8 @@ public class WindowEventsListener : IDisposable
 		uint dwmsEventTime
 	);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern nint SetWinEventHook(
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial nint SetWinEventHook(
 		uint eventMin,
 		uint eventMax,
 		nint hMod,
@@ -32,13 +32,13 @@ public class WindowEventsListener : IDisposable
 		uint dwFlags
 	);
 
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern int UnhookWinEvent(nint hhook);
+	[LibraryImport("user32.dll", SetLastError = true)]
+	private static partial int UnhookWinEvent(nint hhook);
 
-	int OBJID_WINDOW = 0;
-	int CHILDID_SELF = 0;
+	int OBJID_WINDOW;
+    int CHILDID_SELF;
 
-	public delegate void WindowEventHandler(Window wnd);
+    public delegate void WindowEventHandler(Window wnd);
 
 	public event WindowEventHandler WINDOW_SHOWN = (wnd) => { };
 	public event WindowEventHandler WINDOW_HIDDEN = (wnd) => { };
@@ -50,9 +50,9 @@ public class WindowEventsListener : IDisposable
 	public event WindowEventHandler WINDOW_FOCUSED = (wnd) => { };
 
 	readonly Lock @eventLock = new();
-	uint dt = 0;
-	uint lastTime = 0;
-	void winEventProc(
+	uint dt;
+    uint lastTime;
+    void winEventProc(
 		nint hWinEventHook,
 		WINEVENT msg,
 		nint hWnd,

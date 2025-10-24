@@ -13,7 +13,6 @@ using aviyal.Classes.Utilities;
 using aviyal.Classes.APIs;
 using aviyal.Classes.Structs;
 using aviyal.Classes.Enums;
-using aviyal.Classes.Delegates;
 
 namespace aviyal.Classes;
 
@@ -137,14 +136,14 @@ public static class Utils
             window.hWnd = hWnd;
             window.className = GetClassNameFromHWND(hWnd);
             guiProcess.windows.Add(window);
-            EnumWindowProc enumChildWindowProc = (c_hWnd, lParam) =>
+            bool enumChildWindowProc(nint c_hWnd, nint lParam)
             {
                 SubWindow c_window = new();
                 c_window.hWnd = c_hWnd;
                 c_window.className = GetClassNameFromHWND(c_hWnd);
                 guiProcess.windows.Add(c_window);
                 return true;
-            };
+            }
             User32.EnumChildWindows(hWnd, enumChildWindowProc, nint.Zero);
             return true;
         }
@@ -258,11 +257,11 @@ public static class Utils
     public static List<nint>? GetAllTaskbarWindows()
     {
         List<nint>? topWindows = [];
-        EnumWindowProc enumWnd = (hWnd, lParam) =>
+        bool enumWnd(nint hWnd, nint lParam)
         {
             topWindows.Add(hWnd);
             return true;
-        };
+        }
         User32.EnumWindows(enumWnd, nint.Zero);
         var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
         //taskbarWindows.ForEach(hWnd => Logger.Log($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));

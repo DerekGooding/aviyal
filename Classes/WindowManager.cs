@@ -1,14 +1,12 @@
 using aviyal.Classes.APIs;
 using aviyal.Classes.Enums;
-using aviyal.Classes.Structs;
 using aviyal.Classes.Utilities;
 using aviyal.Interfaces;
 using System.Diagnostics;
-using System.Linq;
 
 namespace aviyal.Classes;
 
-public class WindowManager : IWindowManager
+public class WindowManager(Config config) : IWindowManager
 {
 	public List<Window>? initWindows { get; set; } // initWindows := initial set of windows to start the WM with
 	public List<Workspace?> workspaces { get; } = [];
@@ -33,14 +31,10 @@ public class WindowManager : IWindowManager
 	public int WORKSPACES = 9;
 
 	//Server server = new();
-	Config config;
-	public static bool DEBUG = false;
-	public WindowManager(Config config)
-	{
-		this.config = config;
-	}
+	Config config = config;
+	public static bool DEBUG;
 
-	public void Start()
+    public void Start()
 	{
 		if (initWindows == null)
 		{
@@ -110,8 +104,8 @@ public class WindowManager : IWindowManager
     // all workspace/window actions must be executed inside this wrapper function
     // This is to ensure that our own actions dont trigger the window events recursively
     readonly Lock @addLock = new();
-	bool suppressEvents = false;
-	void SuppressEvents(Action func)
+	bool suppressEvents;
+    void SuppressEvents(Action func)
 	{
 		lock (@addLock)
 		{
@@ -485,8 +479,8 @@ public class WindowManager : IWindowManager
 		SaveState("WindowMinimized");
 	}
 
-	public bool mouseDown { get; set; } = false;
-	public void WindowRestored(Window wnd)
+    public bool mouseDown { get; set; }
+    public void WindowRestored(Window wnd)
 	{
 
 		if (ShouldWindowBeIgnored(wnd)) return;
@@ -528,8 +522,8 @@ public class WindowManager : IWindowManager
 		return state;
 	}
 
-	int stateCounter = 0;
-	readonly Lock @lock = new();
+	int stateCounter;
+    readonly Lock @lock = new();
 	public void SaveState(string? lastAction = null)
 	{
 		lock (@lock)
