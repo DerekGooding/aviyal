@@ -64,15 +64,15 @@ public class Config : IJson<Config>
 	{
 		JsonObject j = new()
 		{
-			["layout"] = layout,
-			["left"] = left,
-			["top"] = top,
-			["right"] = right,
-			["bottom"] = bottom,
-			["inner"] = inner,
-			["workspaces"] = workspaces,
+			[nameof(layout)] = layout,
+			[nameof(left)] = left,
+			[nameof(top)] = top,
+			[nameof(right)] = right,
+			[nameof(bottom)] = bottom,
+			[nameof(inner)] = inner,
+			[nameof(workspaces)] = workspaces,
 			["workspaceAnimations"] = workspaceAnimations.ToString(),
-			["floatingWindowSize"] = floatingWindowSize,
+			[nameof(floatingWindowSize)] = floatingWindowSize,
 			["serverPort"] = serverPort,
 			["rules"] = new JsonArray(
 				rules.Select(
@@ -106,20 +106,20 @@ public class Config : IJson<Config>
 		var node = JsonNode.Parse(json);
 
 		Config config = new();
-		config.layout = node["layout"].ToString();
-		config.inner = Convert.ToInt32(node["inner"].ToString());
-		config.left = Convert.ToInt32(node["left"].ToString());
-		config.top = Convert.ToInt32(node["top"].ToString());
-		config.right = Convert.ToInt32(node["right"].ToString());
-		config.bottom = Convert.ToInt32(node["bottom"].ToString());
-		config.workspaces = Convert.ToInt32(node["workspaces"].ToString());
+		config.layout = node[nameof(layout)].ToString();
+		config.inner = Convert.ToInt32(node[nameof(inner)].ToString());
+		config.left = Convert.ToInt32(node[nameof(left)].ToString());
+		config.top = Convert.ToInt32(node[nameof(top)].ToString());
+		config.right = Convert.ToInt32(node[nameof(right)].ToString());
+		config.bottom = Convert.ToInt32(node[nameof(bottom)].ToString());
+		config.workspaces = Convert.ToInt32(node[nameof(workspaces)].ToString());
 		config.workspaceAnimations =
 		node["workspaceAnimations"].ToString() switch
 		{
 			"true" => true,
 			"false" => false
 		};
-		config.floatingWindowSize = node["floatingWindowSize"].ToString();
+		config.floatingWindowSize = node[nameof(floatingWindowSize)].ToString();
 		config.serverPort = Convert.ToInt32(node["serverPort"].ToString());
 
 		config.rules = [];

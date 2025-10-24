@@ -32,7 +32,7 @@ public partial class Shell32
 	public static partial uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
 
 	[LibraryImport("shell32.dll", SetLastError = true)]
-	public static partial long Shell_NotifyIconGetRect(ref _NOTIFYICONIDENTIFIER identifier, out RECT iconLocation);
+	public static partial long Shell_NotifyIconGetRect(ref NOTIFYICONIDENTIFIER identifier, out RECT iconLocation);
 
 	[LibraryImport("shell32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
 	public static partial uint ExtractIconEx(string exePath, int nIconIndex, out nint iconLarge, out nint iconSmall, uint nIcons);

@@ -8,8 +8,8 @@ using System.Text;
 
 namespace aviyal.Classes.APIs;
 
-public class Psapi
+public static class Psapi
 {
 	[DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-	public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
+    public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
 }

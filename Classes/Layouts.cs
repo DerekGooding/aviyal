@@ -31,14 +31,14 @@ public class Dwindle(Config config) : ILayout
 			switch (fillDirection)
 			{
 				case FillDirection.HORIZONTAL:
-					if (i - 1 >= 0)
+					if (i >= 1)
 					{
 						fillRects[i - 1] = TopHalf(fillRects[i - 1]);
 					}
 					fillRect.Left += (fillRect.Right - fillRect.Left) / 2;
 					break;
 				case FillDirection.VERTICAL:
-					if (i - 1 >= 0)
+					if (i >= 1)
 					{
 						fillRects[i - 1] = LeftHalf(fillRects[i - 1]);
 					}

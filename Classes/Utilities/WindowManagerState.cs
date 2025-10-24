@@ -18,22 +18,19 @@ public class WindowManagerState : IJson<WindowManagerState>
 		JsonObject j = new()
 		{
 			["windows"] = new JsonArray(
-				windows.Select(wnd =>
-				{
-					return new JsonObject()
-					{
-						["hWnd"] = wnd.hWnd.ToString(),
-						["title"] = wnd.title,
-						["exe"] = wnd.exe,
-						["state"] = wnd.state.ToString(),
-						["className"] = wnd.className.ToString(),
-						["borderThickness"] = wnd.BorderThickness.ToString(),
-						["elevated"] = wnd.Elevated.ToString(),
-						["floating"] = wnd.floating.ToString(),
-						["resizeable"] = wnd.resizeable.ToString(),
-						["workspace"] = wnd.workspace.ToString(),
-					};
-				}).ToArray()
+				windows.Select(wnd => new JsonObject()
+                {
+                    ["hWnd"] = wnd.hWnd.ToString(),
+                    ["title"] = wnd.title,
+                    ["exe"] = wnd.exe,
+                    ["state"] = wnd.state.ToString(),
+                    ["className"] = wnd.className,
+                    ["borderThickness"] = wnd.BorderThickness.ToString(),
+                    ["elevated"] = wnd.Elevated.ToString(),
+                    ["floating"] = wnd.floating.ToString(),
+                    ["resizeable"] = wnd.resizeable.ToString(),
+                    ["workspace"] = wnd.workspace.ToString(),
+                }).ToArray()
 			),
 			["focusedWorkspaceIndex"] = focusedWorkspaceIndex.ToString(),
 			["workspaceCount"] = workspaceCount.ToString(),

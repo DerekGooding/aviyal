@@ -19,5 +19,5 @@ public partial class Iphlpapi
 	/// <param name="info"></param>
 	/// <returns></returns>
 	[LibraryImport("iphlpapi.dll", SetLastError = true)]
-	public static partial int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
+	public static partial int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
 }

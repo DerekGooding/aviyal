@@ -13,8 +13,5 @@ namespace aviyal.Classes.Structs;
 /// </summary>
 /// TODO
 [StructLayout(LayoutKind.Sequential)]
-public struct _SYSTEM_PROCESS_INFORMATION
-{
-
-}
+public struct SYSTEM_PROCESS_INFORMATION;
 

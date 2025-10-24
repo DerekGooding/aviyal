@@ -12,9 +12,9 @@ namespace aviyal.Classes.Structs;
 /// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
-public struct _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES
+public struct MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES
 {
-	public _NL_BANDWIDTH_INFORMATION InboundBandwidthInformation;
-	public _NL_BANDWIDTH_INFORMATION OutboundBandwidthInformation;
+	public NL_BANDWIDTH_INFORMATION InboundBandwidthInformation;
+	public NL_BANDWIDTH_INFORMATION OutboundBandwidthInformation;
 }
 

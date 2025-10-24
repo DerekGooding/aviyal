@@ -5,7 +5,4 @@
 
 namespace aviyal.Classes;
 
-public class Winmm
-{
-
-}
+public class Winmm;

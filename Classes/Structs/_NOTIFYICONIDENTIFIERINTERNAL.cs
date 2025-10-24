@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace aviyal.Classes.Structs;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct _NOTIFYICONIDENTIFIERINTERNAL
+public struct NOTIFYICONIDENTIFIERINTERNAL
 {
 	//--------------------
 	public int magicNumber;

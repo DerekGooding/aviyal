@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace aviyal.Classes.Structs;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct _NL_BANDWIDTH_INFORMATION
+public struct NL_BANDWIDTH_INFORMATION
 {
 	public ulong Bandwidth;
 	public ulong Instability;

@@ -127,7 +127,7 @@ public partial class WindowEventsListener : IDisposable
 	bool running = true;
 	public void Loop()
 	{
-		uint WINEVENT_OUTOFCONTEXT = 0;
+        const uint WINEVENT_OUTOFCONTEXT = 0;
 		//Console.WriteLine("SetWinEventHook...");
 		hhook = SetWinEventHook(0x00000001, 0x7FFFFFFF, 0, winEventProc, 0, 0, WINEVENT_OUTOFCONTEXT | 0x0001 | 0x0002);
 		//Console.WriteLine($"hook: {hhook}");

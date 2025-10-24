@@ -123,7 +123,7 @@ public static class Utils
             User32.GetWindowThreadProcessId(hWnd, out var processId);
             var process = Process.GetProcessById((int)processId);
             GUIProcess guiProcess;
-            if ((guiProcess = guiProcesses.Where(_p => _p.name == process.ProcessName).FirstOrDefault()) == null)
+            if ((guiProcess = guiProcesses.FirstOrDefault(_p => _p.name == process.ProcessName)) == null)
             {
                 guiProcess = new() { name = process.ProcessName };
                 guiProcesses.Add(guiProcess);
@@ -148,7 +148,7 @@ public static class Utils
         return guiProcesses;
     }
 
-    public static string? GetExePathFromHWND(nint hWnd)
+    public static unsafe string? GetExePathFromHWND(nint hWnd)
     {
         User32.GetWindowThreadProcessId(hWnd, out var processId);
 
@@ -165,7 +165,7 @@ public static class Utils
         /// https://stackoverflow.com/a/75084784/14588925
         /// </summary>
         SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = (nint)processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
-        var result = Ntdll.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out var returnLength);
+        var result = Ntdll.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation, ref info, (uint)sizeof(SYSTEM_PROCESS_ID_INFORMATION), out var returnLength);
         var exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
         Marshal.FreeHGlobal(info.ImageName.Buffer);
         if (exePath == null) return null;
@@ -174,7 +174,7 @@ public static class Utils
         List<string> driveDevicePaths = [];
         List<string> driveNames = [];
         Dictionary<string, string> devicePathToDrivePath = [];
-        driveNames = [.. DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2))];
+        driveNames = [.. DriveInfo.GetDrives().Select(drive => drive.Name[..2])];
         driveDevicePaths = driveNames.ConvertAll(drive =>
         {
             StringBuilder str = new(256);
@@ -185,7 +185,7 @@ public static class Utils
         });
 
         //
-        var exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
+        var exePathDeviceName = driveDevicePaths.Where(exePath.Contains).FirstOrDefault();
         if (exePathDeviceName == null) return null;
         var exePathDriveName = devicePathToDrivePath[exePathDeviceName];
 
@@ -260,7 +260,7 @@ public static class Utils
             return true;
         }
         User32.EnumWindows(enumWnd, nint.Zero);
-        var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
+        var taskbarWindows = topWindows.Where(IsWindowInTaskBar).ToList();
         //taskbarWindows.ForEach(hWnd => Logger.Log($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
         return taskbarWindows;
         //return topWindows;
@@ -282,7 +282,7 @@ public static class Utils
             .Address;
 
     /// <summary>
-    /// Retrieves the primary network interface in your pc that you 
+    /// Retrieves the primary network interface in your pc that you
     /// use for internet, required for monitoring network bandwidths
     /// and speeds. The idea is that the interface that is used for internet
     /// has the local lan ip
@@ -321,7 +321,7 @@ public static class Utils
     //}
 
     /// <summary>
-    /// Hides window in the alt-tab window by (ADDING the WS_EX_TOOLWINDOW) and 
+    /// Hides window in the alt-tab window by (ADDING the WS_EX_TOOLWINDOW) and
     /// (REMOVING the WS_EX_APPWINDOW) extended Styles
     /// </summary>
     /// <param name="hWnd"></param>
@@ -339,8 +339,8 @@ public static class Utils
     /// <summary>
     /// <para>
     /// Make a window bottom most and stick to desktop by making it unfocusable
-    /// This is required especially for creating widget windows that need to 
-    /// always be on the background and never recieve focus. This is done by 
+    /// This is required especially for creating widget windows that need to
+    /// always be on the background and never recieve focus. This is done by
     /// adding the WS_EX_NOACTIVATE style.
     /// </para>
     /// <para>
@@ -364,8 +364,8 @@ public static class Utils
         var scale = GetDisplayScaling();
         var screenWidth = User32.GetSystemMetrics(0);
         var screenHeight = User32.GetSystemMetrics(1);
-        screenWidth = screenWidth;
-        screenHeight = screenHeight;
+        //screenWidth = screenWidth;
+        //screenHeight = screenHeight;
         //Console.WriteLine($"[{screenWidth}x{screenHeight}], scale: {scale}");
         return (screenWidth, screenHeight);
     }

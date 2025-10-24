@@ -25,10 +25,10 @@ public struct NOTIFYICONDATA
 	public uint uID;
 	public uint uFlags;
 	/// <summary>
-	/// SendMessage(hWnd, uCallbackMessage, ..., ...) 
+	/// SendMessage(hWnd, uCallbackMessage, ..., ...)
 	/// Wait what ? ......^...
-	/// isnt it supposed to be a window message defined in WINDOWMESSAGE such as WM_CONTEXTMENU 
-	/// or WM_RIGHTBUTTONDOWN ? well the actual window the gets the WM_RIGHTBUTTONDOWN when 
+	/// isnt it supposed to be a window message defined in WINDOWMESSAGE such as WM_CONTEXTMENU
+	/// or WM_RIGHTBUTTONDOWN ? well the actual window the gets the WM_RIGHTBUTTONDOWN when
 	/// the icon is rightclicked is the window hoisting the icon TopLevelXamlOverflowWindow
 	/// or even Shell_TrayWnd. It then requests the message processing window of the icon (window with handle hWnd)
 	/// for a context menu.

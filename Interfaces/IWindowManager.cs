@@ -8,7 +8,7 @@ namespace aviyal.Interfaces;
 
 public interface IWindowManager
 {
-	public List<Workspace> workspaces { get; }
+	public List<Workspace?> workspaces { get; }
 	public Workspace focusedWorkspace { get; }
 	public int focusedWorkspaceIndex { get; }
 

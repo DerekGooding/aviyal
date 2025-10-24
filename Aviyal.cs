@@ -13,8 +13,8 @@ using System.Diagnostics;
 namespace Aviyal;
 class Aviyal : IDisposable
 {
-	static string ver = "0.1.0";
-	static Aviyal? aviyal;
+	const string _ver = "0.1.0";
+	static Aviyal? _aviyal;
 
 	public WindowManager wm;
 	public Server server;
@@ -23,18 +23,18 @@ class Aviyal : IDisposable
 	public KeyEventsListener kbdListener;
 	public MouseEventsListener mouseListener = new();
 
-	Dictionary<COMMAND, Action> actions { get; }
+	Dictionary<COMMAND, Action> Actions { get; }
 
 	public Aviyal(Config config)
 	{
 		wm = new(config);
 		server = new(config);
 
-		actions = new()
+		Actions = new()
 		{
 			{ COMMAND.FOCUS_NEXT_WORKSPACE, () => wm.FocusNextWorkspace() },
 			{ COMMAND.FOCUS_PREVIOUS_WORKSPACE, () => wm.FocusPreviousWorkspace() },
-			{ COMMAND.CLOSE_FOCUSED_WINDOW, () => wm.focusedWorkspace.CloseFocusedWindow() },
+			{ COMMAND.CLOSE_FOCUSED_WINDOW, wm.focusedWorkspace.CloseFocusedWindow },
 			{ COMMAND.FOCUS_LEFT_WINDOW, () => wm.focusedWorkspace.FocusAdjacentWindow(EDGE.LEFT) },
 			{ COMMAND.FOCUS_TOP_WINDOW, () => wm.focusedWorkspace.FocusAdjacentWindow(EDGE.TOP) },
 			{ COMMAND.FOCUS_RIGHT_WINDOW, () => wm.focusedWorkspace.FocusAdjacentWindow(EDGE.RIGHT) },
@@ -56,8 +56,8 @@ class Aviyal : IDisposable
 			{ COMMAND.FOCUS_WORKSPACE_8, () => wm.FocusWorkspace(wm.workspaces[7]) },
 			{ COMMAND.FOCUS_WORKSPACE_9, () => wm.FocusWorkspace(wm.workspaces[8]) },
 
-			{ COMMAND.RESTART, () => Restart() },
-			{ COMMAND.UPDATE, () => wm.focusedWorkspace.Update() },
+			{ COMMAND.RESTART, Restart },
+			{ COMMAND.UPDATE, wm.focusedWorkspace.Update },
 		};
 
 		server.REQUEST_RECEIVED += wm.RequestReceived;
@@ -92,7 +92,7 @@ class Aviyal : IDisposable
 			var text = ex.Message + "\n" + ex.StackTrace;
 			Console.WriteLine(text);
 			File.WriteAllText(Paths.errorFile, text);
-			errored = true;
+			_errored = true;
 		};
 	}
 
@@ -103,7 +103,7 @@ class Aviyal : IDisposable
 		// configuration persisted onto the next. Turns out it was one of these
 		// old event handlers still setting window attributes
 		server.REQUEST_RECEIVED -= wm.RequestReceived;
-		wm.WINDOW_MANAGER_MESSAGE_SENT -= (message) => server.Broadcast(message);
+		wm.WINDOW_MANAGER_MESSAGE_SENT -= server.Broadcast;
 		wndListener.WINDOW_SHOWN -= wm.WindowShown;
 		wndListener.WINDOW_DESTROYED -= wm.WindowDestroyed;
 		wndListener.WINDOW_MOVED -= wm.WindowMoved;
@@ -125,13 +125,13 @@ class Aviyal : IDisposable
 	{
 		Console.WriteLine($"Hotekey Pressed: {keymap.command}");
 		if (keymap.command == COMMAND.EXEC) Exec(keymap.arguments);
-		else actions[keymap.command]?.Invoke();
+		else Actions[keymap.command]?.Invoke();
 	}
 
 	public void MouseDown() => wm.mouseDown = true;
 	public void MouseUp() => wm.mouseDown = false;
 
-	public void Exec(List<string> args)
+	public static void Exec(List<string> args)
 	{
 		if (args.Count == 0) return;
 		try
@@ -158,10 +158,10 @@ class Aviyal : IDisposable
 			return;
 		}
 
-		Console.WriteLine($"Running aviyal instance, reload count: {reloadCount}");
+		Console.WriteLine($"Running aviyal instance, reload count: {_reloadCount}");
 
-		Config config = null;
-		if (File.Exists(Paths.configFile))
+        Config? config;
+        if (File.Exists(Paths.configFile))
 		{
 			var jsonString = File.ReadAllText(Paths.configFile);
 			Console.WriteLine(jsonString);
@@ -185,32 +185,32 @@ class Aviyal : IDisposable
 		Shcore.SetProcessDpiAwareness(PROCESS_DPI_AWARENESS.PROCESS_PER_MONITOR_DPI_AWARE);
 
 		// collect windows to restore when reloaded (when reloaded all windows will be put to workspace 0)
-		var windows = aviyal?.wm.GetAllWindows();
-		aviyal?.Dispose();
-		aviyal = new(config);
-		aviyal.wm.initWindows = windows!;
-		aviyal.wm.Start();
+		var windows = _aviyal?.wm.GetAllWindows();
+		_aviyal?.Dispose();
+		_aviyal = new(config);
+		_aviyal.wm.initWindows = windows!;
+		_aviyal.wm.Start();
 	}
 
-	static bool errored;
-    static bool running;
-    static int reloadCount;
+	static bool _errored;
+    static bool _running;
+    static int _reloadCount;
     static void Loop()
 	{
 		do
 		{
-			if (!running)
+			if (!_running)
 			{
 				Run();
-				running = true;
-				reloadCount++;
+				_running = true;
+				_reloadCount++;
 			}
 			Thread.Sleep(1);
 		}
-		while (!errored);
+		while (!_errored);
 	}
 
-	static void Restart() => running = false;
+	static void Restart() => _running = false;
 
 	static void Restore(string? file = null)
 	{
@@ -249,18 +249,13 @@ class Aviyal : IDisposable
 				break;
 			case "--debug":
 				WindowManager.DEBUG = true;
-				WithConsole(() => Loop());
+				WithConsole(Loop);
 				break;
 			case "--version":
-				WithConsole(() =>
-				{
-					Console.WriteLine($"Aviyal version: {ver}");
-				});
+				WithConsole(() => Console.WriteLine($"Aviyal version: {_ver}"));
 				break;
 			case "--help":
-				WithConsole(() =>
-				{
-					Console.WriteLine(
+				WithConsole(() => Console.WriteLine(
 @"
 ,_______________________________,
 |   Aviyal Window Manager |__|__|
@@ -285,46 +280,11 @@ available options:
 --version:  prints the version
 --restore:  restores windows from a previous state. Useful when crashed and windows are hidden.
 "
-					);
-				});
+                    ));
 				break;
 			case "--restore":
 				WithConsole(() => Restore(args.ToList().ElementAtOrDefault(1)));
 				break;
 		}
 	}
-}
-
-public enum COMMAND
-{
-	FOCUS_NEXT_WORKSPACE,
-	FOCUS_PREVIOUS_WORKSPACE,
-	CLOSE_FOCUSED_WINDOW,
-	FOCUS_RIGHT_WINDOW,
-	FOCUS_TOP_WINDOW,
-	FOCUS_LEFT_WINDOW,
-	FOCUS_BOTTOM_WINDOW,
-
-	SHIFT_FOCUSED_WINDOW_RIGHT,
-	SHIFT_FOCUSED_WINDOW_LEFT,
-
-	SHIFT_WINDOW_NEXT_WORKSPACE,
-	SHIFT_WINDOW_PREVIOUS_WORKSPACE,
-
-	TOGGLE_FLOATING_WINDOW,
-
-	EXEC,
-
-	FOCUS_WORKSPACE_1,
-	FOCUS_WORKSPACE_2,
-	FOCUS_WORKSPACE_3,
-	FOCUS_WORKSPACE_4,
-	FOCUS_WORKSPACE_5,
-	FOCUS_WORKSPACE_6,
-	FOCUS_WORKSPACE_7,
-	FOCUS_WORKSPACE_8,
-	FOCUS_WORKSPACE_9,
-
-	RESTART,
-	UPDATE,
 }

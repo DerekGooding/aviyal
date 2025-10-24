@@ -12,7 +12,7 @@ namespace aviyal.Classes.Structs;
 /// https://ntdoc.m417z.com/system_memory_usage_information
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct _SYSTEM_MEMORY_USAGE_INFORMATION
+public struct SYSTEM_MEMORY_USAGE_INFORMATION
 {
 	public ulong TotalPhysicalBytes;
 	public ulong AvailableBytes;

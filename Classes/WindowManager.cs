@@ -9,7 +9,7 @@ namespace aviyal.Classes;
 public class WindowManager(Config config) : IWindowManager
 {
 	public List<Window>? initWindows { get; set; } // initWindows := initial set of windows to start the WM with
-	public List<Workspace?> workspaces { get; } = [];
+    public List<Workspace?> workspaces { get; } = [];
 	public Workspace focusedWorkspace { get; private set; }
 
 	public int focusedWorkspaceIndex
@@ -40,7 +40,7 @@ public class WindowManager(Config config) : IWindowManager
 		{
 			initWindows = GetVisibleWindows()!;
 			initWindows = [.. initWindows.Where(wnd => !ShouldWindowBeIgnored(wnd))];
-			initWindows.ForEach(wnd => ApplyConfigsToWindow(wnd));
+			initWindows.ForEach(ApplyConfigsToWindow);
 		}
 
 		// when running in debug mode, only window containing the title "windowgen" will 
@@ -71,10 +71,7 @@ public class WindowManager(Config config) : IWindowManager
 	{
 		List<Window?> windows = [];
 		var hWnds = Utils.GetAllTaskbarWindows();
-		hWnds?.ForEach(hWnd =>
-		{
-			windows.Add(new(hWnd));
-		});
+		hWnds?.ForEach(hWnd => windows.Add(new(hWnd)));
 		return windows;
 	}
 
@@ -245,7 +242,7 @@ public class WindowManager(Config config) : IWindowManager
 
 			var wndAttribute = rule.identifierType switch
 			{
-				"windowProcess" => wnd.exeName,
+				"windowProcess" => wnd.ExeName,
 				"windowTitle" => wnd.title,
 				"windowClass" => wnd.className,
 				_ => ""
@@ -279,7 +276,7 @@ public class WindowManager(Config config) : IWindowManager
         if (wnd.exStyles.HasFlag(WINDOWSTYLEEX.WS_EX_TOOLWINDOW)) return true;
 		if (wnd.exStyles.HasFlag(WINDOWSTYLEEX.WS_EX_TOPMOST)) return true;
 
-		if (wnd.className == null || wnd.className == "") return true;
+		if (string.IsNullOrEmpty(wnd.className)) return true;
 
 		if (wnd.className.Contains("#32770") &&
 			!wnd.styles.HasFlag(WINDOWSTYLE.WS_SYSMENU) &&
@@ -539,7 +536,7 @@ public class WindowManager(Config config) : IWindowManager
 	public string RequestReceived(string request)
 	{
 		var args = request.Split(" ");
-		args[args.Length - 1] = args.Last().Replace("\n", "");
+		args[^1] = args[^1].Replace("\n", "");
 		//Console.WriteLine($"arg0: {args.FirstOrDefault()}, arg1: {args.ElementAtOrDefault(1)}");
 		var verb = args.FirstOrDefault();
 		//Console.WriteLine($"verb: {verb}");
@@ -589,7 +586,7 @@ public class WindowManager(Config config) : IWindowManager
 	{
 		var fps = 60;
 		var dt = 1000 / fps; // milliseconds
-		var frames = (int)(((float)duration / 1000) * fps);
+		var frames = (int)((float)duration / 1000 * fps);
 
 		Stopwatch sw = new();
 		sw.Start();

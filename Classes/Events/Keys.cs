@@ -51,11 +51,11 @@ public partial class KeyEventsListener : IDisposable
 	uint lastKeyTime;
     VK? lastKey; // the trailing key of a hotkey action -> H in Ctrl+Shift+H
 	bool letKeyPass = true;
-	int KeyboardCallback(int code, nint wparam, nint lparam)
+    unsafe int KeyboardCallback(int code, nint wparam, nint lparam)
 	{
 		lock (@eventLock)
 		{
-			var kbdStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lparam);
+			var kbdStruct = *(KBDLLHOOKSTRUCT*)lparam;
 			if (kbdStruct.dwExtraInfo == Globals.FOREGROUND_FAKE_KEY)
 			{
 				//Console.WriteLine("FOREGROUND_FAKE_KEY");

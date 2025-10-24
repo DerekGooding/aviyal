@@ -5,9 +5,7 @@
 
 namespace aviyal.Classes.Events;
 
-public class MouseEvent
-{
-}
+public class MouseEvent;
 
 
 

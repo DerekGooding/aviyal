@@ -33,11 +33,11 @@ public partial class MouseEventsListener : IDisposable
     public static partial bool DispatchMessage(ref uint msg);
 
 	readonly Lock @eventLock = new();
-	int MouseCallback(int code, nint wparam, nint lparam)
+    unsafe int MouseCallback(int code, nint wparam, nint lparam)
 	{
 		lock (@eventLock)
 		{
-			var mouseStruct = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lparam);
+			var mouseStruct = *(MSLLHOOKSTRUCT*)lparam;
 			switch ((WINDOWMESSAGE)wparam)
 			{
 				case WINDOWMESSAGE.WM_LBUTTONDOWN:
@@ -73,16 +73,17 @@ public partial class MouseEventsListener : IDisposable
 	public event MouseEventHandler MOUSE_DOWN = () => { };
 	public event MouseEventHandler MOUSE_UP = () => { };
 
-	Thread thread;
+	Thread _thread;
 	public MouseEventsListener()
 	{
-		thread = new(Loop);
-		thread.Start();
+		_thread = new(Loop);
+		_thread.Start();
 	}
 
 	public void Dispose()
 	{
-		UnhookWindowsHookEx(hhook);
+		GC.SuppressFinalize(this);
+        UnhookWindowsHookEx(hhook);
 		running = false;
 	}
 }

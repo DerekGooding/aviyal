@@ -19,27 +19,18 @@ public class Window(nint hWnd) : IWindow
 		{
 			// EnumWindowProcess() is hella expensive, and anyway exe wont change
 			// for a process once its found
-			if (field == null)
-			{
-				field = Utils.GetExePathFromHWND(hWnd) ??
+			field ??= Utils.GetExePathFromHWND(hWnd) ??
 						Utils.EnumWindowProcesses()
 						.FirstOrDefault(wndProcess => wndProcess
 										.windows.Select(wndp => wndp.hWnd)
 						.Contains(hWnd))?
 						.process.MainModule?.FileName;
-			}
 			return field;
 		}
 	}
-	public string exeName
-	{
-		get
-		{
-			return @$"{exe}"?.Split(@"\").Last().Replace(".exe", "")!;
-		}
-	}
+    public string ExeName => @$"{exe}"?.Split(@"\").Last().Replace(".exe", "")!;
 
-	public RECT rect // absolute position
+    public RECT rect // absolute position
 	{
 		get
 		{
@@ -72,8 +63,8 @@ public class Window(nint hWnd) : IWindow
 	{
 		get
 		{
-			var _p = Process.GetProcessesByName(exeName).FirstOrDefault();
-			return _p == null ? 0 : _p.Id;
+			var _p = Process.GetProcessesByName(ExeName).FirstOrDefault();
+			return (_p?.Id) ?? 0;
 		}
 	}
     //Console.WriteLine($"checking elevation of {title}: {Utils.IsProcessElevated(pid)}");
@@ -92,7 +83,7 @@ public class Window(nint hWnd) : IWindow
 		}
 	}
     //if (base.Equals(obj)) return true;
-    public override bool Equals(object? obj) => obj is null ? false : ((Window)obj).hWnd == hWnd;
+    public override bool Equals(object? obj) => obj is not null && ((Window)obj).hWnd == hWnd;
 
     public static bool operator ==(Window? left, Window? right) => left is null ? right is null : left.Equals(right);
 
@@ -175,14 +166,14 @@ public class Window(nint hWnd) : IWindow
 		////Console.WriteLine($"ToggleAnimation(): {res}");
 	}
 
-	public RECT GetFrameMargin()
+	public unsafe RECT GetFrameMargin()
 	{
 		User32.GetWindowRect(hWnd, out var rect);
 		//Console.WriteLine($"GWR [L: {rect.Left} R: {rect.Right} T: {rect.Top} B:{rect.Bottom}]");
-		var size = Marshal.SizeOf<RECT>();
+		var size = sizeof(RECT);
 		var rectPtr = Marshal.AllocHGlobal(size);
 		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, rectPtr, (uint)size);
-		var rect2 = Marshal.PtrToStructure<RECT>(rectPtr);
+		var rect2 = *(RECT*)rectPtr;
 		Marshal.FreeHGlobal(rectPtr);
 		//Console.WriteLine($"DWM [L: {rect2.Left} R: {rect2.Right} T: {rect2.Top} B:{rect2.Bottom}]");
 		// scale dwm rect2 to take into account display scaling
