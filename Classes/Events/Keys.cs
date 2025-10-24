@@ -59,9 +59,9 @@ public class KeyEventsListener : IDisposable
 				//Console.WriteLine("FOREGROUND_FAKE_KEY");
 				return 1;
 			}
-			VK key = (VK)kbdStruct.vkCode;
+			var key = (VK)kbdStruct.vkCode;
 			//Console.WriteLine($"START, Key: {key}, {(WINDOWMESSAGE)wparam}");
-			uint dt = kbdStruct.time - lastKeyTime;
+			var dt = kbdStruct.time - lastKeyTime;
 			if (dt > 500) captured.Clear();
 			letKeyPass = true;
 			switch ((WINDOWMESSAGE)wparam)
@@ -69,7 +69,7 @@ public class KeyEventsListener : IDisposable
 				case WINDOWMESSAGE.WM_KEYDOWN or WINDOWMESSAGE.WM_SYSKEYDOWN /* ALT */:
 					if (!captured.Contains(key)) captured.Add(key);
 					//Log(captured, dt);
-					foreach (Keymap keymap in keymaps)
+					foreach (var keymap in keymaps)
 					{
 						if (Utils.ListContentEqual<VK>(captured, keymap.keys))
 						{
@@ -115,7 +115,7 @@ public class KeyEventsListener : IDisposable
 		// always use a message pump, instead of: while(Console.ReadLine() != ":q") { }
 		while (running)
 		{
-			int _ = GetMessage(out uint msg, 0, 0, 0);
+			var _ = GetMessage(out var msg, 0, 0, 0);
 			TranslateMessage(ref msg);
 			DispatchMessage(ref msg);
 		}

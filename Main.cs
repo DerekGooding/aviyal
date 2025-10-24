@@ -81,15 +81,15 @@ class Aviyal : IDisposable
 		mouseListener.MOUSE_UP += MouseUp;
 
 		// just make all windows reappear if crashes
-		AppDomain currentDomain = AppDomain.CurrentDomain;
+		var currentDomain = AppDomain.CurrentDomain;
 		currentDomain.UnhandledException += (s, e) =>
 		{
-			int i = 0;
+			var i = 0;
 			wm.workspaces.ForEach(wksp => wksp.windows.ForEach(wnd => { wnd?.Show(); i++; }));
 			Console.WriteLine($"Crash: Restored {i} windows...");
 
-			Exception ex = (Exception)e.ExceptionObject;
-			string text = ex.Message + "\n" + ex.StackTrace;
+			var ex = (Exception)e.ExceptionObject;
+			var text = ex.Message + "\n" + ex.StackTrace;
 			Console.WriteLine(text);
 			File.WriteAllText(Paths.errorFile, text);
 			errored = true;
@@ -163,7 +163,7 @@ class Aviyal : IDisposable
 		Config config = null;
 		if (File.Exists(Paths.configFile))
 		{
-			string jsonString = File.ReadAllText(Paths.configFile);
+			var jsonString = File.ReadAllText(Paths.configFile);
 			Console.WriteLine(jsonString);
 			try
 			{
@@ -220,7 +220,7 @@ class Aviyal : IDisposable
 			Console.WriteLine($"State file: {restoreFile} not found!");
 			return;
 		}
-		WindowManagerState state = WindowManagerState.FromJson(File.ReadAllText(restoreFile));
+		var state = WindowManagerState.FromJson(File.ReadAllText(restoreFile));
 		Console.WriteLine($"Found {state.windows.Count} windows in {restoreFile}");
 		state.windows.ForEach(wnd =>
 		{

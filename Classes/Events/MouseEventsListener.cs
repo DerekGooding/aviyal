@@ -61,7 +61,7 @@ public class MouseEventsListener : IDisposable
 		// always use a message pump, instead of: while(Console.ReadLine() != ":q") { }
 		while (running)
 		{
-			int _ = GetMessage(out uint msg, 0, 0, 0);
+			var _ = GetMessage(out var msg, 0, 0, 0);
 			TranslateMessage(ref msg);
 			DispatchMessage(ref msg);
 		}

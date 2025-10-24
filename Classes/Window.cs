@@ -43,7 +43,7 @@ public class Window(nint hWnd) : IWindow
 	{
 		get
 		{
-			User32.GetWindowRect(hWnd, out RECT _rect);
+			User32.GetWindowRect(hWnd, out var _rect);
 			return _rect;
 		}
 	}
@@ -72,7 +72,7 @@ public class Window(nint hWnd) : IWindow
 	{
 		get
 		{
-			Process? _p = Process.GetProcessesByName(exeName).FirstOrDefault();
+			var _p = Process.GetProcessesByName(exeName).FirstOrDefault();
 			return _p == null ? 0 : _p.Id;
 		}
 	}
@@ -87,7 +87,7 @@ public class Window(nint hWnd) : IWindow
 	{
 		get
 		{
-			User32.GetWindowInfo(hWnd, out WINDOWINFO info);
+			User32.GetWindowInfo(hWnd, out var info);
 			return info.cxWindowBorders;
 		}
 	}
@@ -127,13 +127,13 @@ public class Window(nint hWnd) : IWindow
 	public void Move(RECT pos, bool redraw = true)
 	{
 		// remove frame bounds
-		RECT margin = GetFrameMargin();
+		var margin = GetFrameMargin();
 		pos.Left -= margin.Left;
 		pos.Top -= margin.Top;
 		pos.Right -= margin.Right;
 		pos.Bottom -= margin.Bottom;
 
-		SETWINDOWPOS moveFlags = redraw switch
+		var moveFlags = redraw switch
 		{
 			true => _defaultMoveFlags,
 			false => _defaultMoveFlags | SETWINDOWPOS.SWP_NOREDRAW
@@ -145,7 +145,7 @@ public class Window(nint hWnd) : IWindow
 	const SETWINDOWPOS slideFlag = _defaultMoveFlags | SETWINDOWPOS.SWP_NOSIZE;
 	public void Move(int? x, int? y, bool redraw = true)
 	{
-		SETWINDOWPOS moveFlag = redraw switch
+		var moveFlag = redraw switch
 		{
 			true => slideFlag,
 			false => slideFlag | SETWINDOWPOS.SWP_NOREDRAW
@@ -169,24 +169,24 @@ public class Window(nint hWnd) : IWindow
 
     public void ToggleAnimation(bool flag)
 	{
-		int attr = 0;
+		var attr = 0;
 		if (!flag) attr = 1;
-		int res = Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED, ref attr, sizeof(int));
+		var res = Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_TRANSITIONS_FORCEDISABLED, ref attr, sizeof(int));
 		////Console.WriteLine($"ToggleAnimation(): {res}");
 	}
 
 	public RECT GetFrameMargin()
 	{
-		User32.GetWindowRect(hWnd, out RECT rect);
+		User32.GetWindowRect(hWnd, out var rect);
 		//Console.WriteLine($"GWR [L: {rect.Left} R: {rect.Right} T: {rect.Top} B:{rect.Bottom}]");
-		int size = Marshal.SizeOf<RECT>();
-		nint rectPtr = Marshal.AllocHGlobal(size);
+		var size = Marshal.SizeOf<RECT>();
+		var rectPtr = Marshal.AllocHGlobal(size);
 		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, rectPtr, (uint)size);
-		RECT rect2 = Marshal.PtrToStructure<RECT>(rectPtr);
+		var rect2 = Marshal.PtrToStructure<RECT>(rectPtr);
 		Marshal.FreeHGlobal(rectPtr);
 		//Console.WriteLine($"DWM [L: {rect2.Left} R: {rect2.Right} T: {rect2.Top} B:{rect2.Bottom}]");
 		// scale dwm rect2 to take into account display scaling
-		double scale = Utils.GetDisplayScaling();
+		var scale = Utils.GetDisplayScaling();
 
 		return new RECT()
 		{

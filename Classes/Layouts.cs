@@ -19,11 +19,11 @@ public class Dwindle(Config config) : ILayout
 		rects = new RECT[count];
 		fillRects = new RECT[count];
 
-		(int width, int height) = Utils.GetScreenSize();
-		FillDirection fillDirection = FillDirection.HORIZONTAL;
+		(var width, var height) = Utils.GetScreenSize();
+		var fillDirection = FillDirection.HORIZONTAL;
 		// where the nth window will go
 		RECT fillRect = new() { Left = 0, Top = 0, Right = width, Bottom = height };
-		for (int i = 0; i < count; i++)
+		for (var i = 0; i < count; i++)
 		{
 			fillRects[i] = fillRect;
 
@@ -73,8 +73,8 @@ public class Dwindle(Config config) : ILayout
 	// applies outer margins
 	public RECT[] ApplyOuter(RECT[] fillRects)
 	{
-		(int width, int height) = Utils.GetScreenSize();
-		for (int i = 0; i < fillRects.Length; i++)
+		(var width, var height) = Utils.GetScreenSize();
+		for (var i = 0; i < fillRects.Length; i++)
 		{
 			if (fillRects[i].Left == 0) fillRects[i].Left += left;
 			if (fillRects[i].Top == 0) fillRects[i].Top += top;
@@ -87,8 +87,8 @@ public class Dwindle(Config config) : ILayout
 	// applies inner margins (apply only after outer)
 	public RECT[] ApplyInner(RECT[] fillRects)
 	{
-		(int width, int height) = Utils.GetScreenSize();
-		for (int i = 0; i < fillRects.Length; i++)
+		(var width, var height) = Utils.GetScreenSize();
+		for (var i = 0; i < fillRects.Length; i++)
 		{
 			if (fillRects[i].Left != left) fillRects[i].Left += inner / 2;
 			if (fillRects[i].Top != top) fillRects[i].Top += inner / 2;
@@ -115,8 +115,8 @@ public class Dwindle(Config config) : ILayout
 		// 2. if not just add +1 to index if direction is RIGHT, -1 if direction is LEFT
 		// 3. if at edge return index
 		if (index > fillRects.Length - 1) return null;
-		(int width, int height) = Utils.GetScreenSize();
-		EDGE[] edges = GetEdges(fillRects[index], width, height);
+		(var width, var height) = Utils.GetScreenSize();
+		var edges = GetEdges(fillRects[index], width, height);
 		//Console.WriteLine("edgesCount: " + edges.Length);
 		edges.ToList().ForEach(edge => Console.Write($"{edge}, "));
 

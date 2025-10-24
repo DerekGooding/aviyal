@@ -4,6 +4,7 @@ using aviyal.Classes.Structs;
 using aviyal.Classes.Utilities;
 using aviyal.Interfaces;
 using System.Diagnostics;
+using System.Linq;
 
 namespace aviyal.Classes;
 
@@ -17,8 +18,8 @@ public class WindowManager : IWindowManager
 	{
 		get
 		{
-			int index = 0;
-			for (int i = 0; i < workspaces.Count; i++)
+			var index = 0;
+			for (var i = 0; i < workspaces.Count; i++)
 			{
 				if (workspaces[i] == focusedWorkspace)
 				{
@@ -59,7 +60,7 @@ public class WindowManager : IWindowManager
 		}
 		//initWindows.ForEach(wnd => //Console.WriteLine($"Title: {wnd.title}, hWnd: {wnd.hWnd}"));
 
-		for (int i = 0; i < WORKSPACES; i++)
+		for (var i = 0; i < WORKSPACES; i++)
 		{
 			Workspace wksp = new(config);
 			wksp.layout = new Dwindle(config);
@@ -77,7 +78,7 @@ public class WindowManager : IWindowManager
 	public List<Window?> GetVisibleWindows()
 	{
 		List<Window?> windows = [];
-		List<nint>? hWnds = Utils.GetAllTaskbarWindows();
+		var hWnds = Utils.GetAllTaskbarWindows();
 		hWnds?.ForEach(hWnd =>
 		{
 			windows.Add(new(hWnd));
@@ -88,35 +89,29 @@ public class WindowManager : IWindowManager
 	public List<Window?> GetAllWindows()
 	{
 		List<Window?> windows = [];
-		foreach (var wksp in workspaces)
-			foreach (var wnd in wksp!.windows)
-				windows.Add(wnd);
-		return windows;
+        windows.AddRange(from wksp in workspaces
+                         from wnd in wksp!.windows
+                         select wnd);
+        return windows;
 	}
 
-	// search for the window in our workspace and give a local reference that
-	// has all the valid states set, the window instance emmitted by window event
-	// listener gives a blank window that only matches the stateless properties
-	// call this in all event handlers that deal with windows events of windows
-	// that already exist in the workspace so basically every one except WindowShown
-	Window? GetAlreadyStoredWindow(Window wnd)
-	{
-		return focusedWorkspace?.windows?.FirstOrDefault(_wnd => _wnd == wnd);
-	}
+    // search for the window in our workspace and give a local reference that
+    // has all the valid states set, the window instance emmitted by window event
+    // listener gives a blank window that only matches the stateless properties
+    // call this in all event handlers that deal with windows events of windows
+    // that already exist in the workspace so basically every one except WindowShown
+    Window? GetAlreadyStoredWindow(Window wnd) => focusedWorkspace?.windows?.FirstOrDefault(_wnd => _wnd == wnd);
 
-	public void FocusWorkspace(Workspace wksp)
-	{
-		SuppressEvents(() =>
-		{
-			workspaces.ForEach(wksp => wksp?.Hide());
-			wksp.Focus();
-			focusedWorkspace = wksp;
-		});
-	}
+    public void FocusWorkspace(Workspace wksp) => SuppressEvents(() =>
+    {
+        workspaces.ForEach(wksp => wksp?.Hide());
+        wksp.Focus();
+        focusedWorkspace = wksp;
+    });
 
-	// all workspace/window actions must be executed inside this wrapper function
-	// This is to ensure that our own actions dont trigger the window events recursively
-	readonly Lock @addLock = new();
+    // all workspace/window actions must be executed inside this wrapper function
+    // This is to ensure that our own actions dont trigger the window events recursively
+    readonly Lock @addLock = new();
 	bool suppressEvents = false;
 	void SuppressEvents(Action func)
 	{
@@ -132,13 +127,13 @@ public class WindowManager : IWindowManager
 	public void FocusNextWorkspace()
 	{
 
-		int next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
-		int prev = focusedWorkspaceIndex > 0 ? focusedWorkspaceIndex - 1 : workspaces.Count - 1;
+		var next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
+		var prev = focusedWorkspaceIndex > 0 ? focusedWorkspaceIndex - 1 : workspaces.Count - 1;
 
 		if (config.workspaceAnimations)
 		{
 			// move left
-			(int w, int h) = Utils.GetScreenSize();
+			(var w, var h) = Utils.GetScreenSize();
 			SuppressEvents(() =>
 			{
 				workspaces[next].Move(w, null);
@@ -154,7 +149,7 @@ public class WindowManager : IWindowManager
 				//Thread.Sleep(100);
 				workspaces[next].Show();
 
-				int duration = 500;
+				var duration = 500;
 				List<Task> _ts =
                 [
                     Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, -w, duration)),
@@ -179,19 +174,19 @@ public class WindowManager : IWindowManager
 
 	public void FocusPreviousWorkspace()
 	{
-		int next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
-		int prev = focusedWorkspaceIndex <= 0 ? workspaces.Count - 1 : focusedWorkspaceIndex - 1;
+		var next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
+		var prev = focusedWorkspaceIndex <= 0 ? workspaces.Count - 1 : focusedWorkspaceIndex - 1;
 
 		if (config.workspaceAnimations)
 		{
 			// move right
-			(int w, int h) = Utils.GetScreenSize();
+			(var w, var h) = Utils.GetScreenSize();
 			SuppressEvents(() =>
 			{
 				workspaces[prev].Move(-w, null);
 				workspaces[prev].Show();
 
-				int duration = 500;
+				var duration = 500;
 				List<Task> _ts =
                 [
                     Task.Run(() => WorkspaceAnimate(focusedWorkspace, 0, w, duration)),
@@ -219,7 +214,7 @@ public class WindowManager : IWindowManager
 		SuppressEvents(() =>
 		{
 			if (index < 0 || index > workspaces.Count - 1) return;
-			Window? wnd = focusedWorkspace.focusedWindow;
+			var wnd = focusedWorkspace.focusedWindow;
 			if (wnd == null) return;
 			focusedWorkspace.Remove(wnd);
 			wnd.workspace = index;
@@ -233,7 +228,7 @@ public class WindowManager : IWindowManager
 
 	public void ShiftFocusedWindowToNextWorkspace()
 	{
-		int next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
+		var next = focusedWorkspaceIndex >= workspaces.Count - 1 ? 0 : focusedWorkspaceIndex + 1;
 		ShiftFocusedWindowToWorkspace(next);
 
 		SaveState("ShiftWindowToNextWorkspace");
@@ -241,7 +236,7 @@ public class WindowManager : IWindowManager
 
 	public void ShiftFocusedWindowToPreviousWorkspace()
 	{
-		int prev = focusedWorkspaceIndex <= 0 ? workspaces.Count - 1 : focusedWorkspaceIndex - 1;
+		var prev = focusedWorkspaceIndex <= 0 ? workspaces.Count - 1 : focusedWorkspaceIndex - 1;
 		ShiftFocusedWindowToWorkspace(prev);
 
 		SaveState("ShiftWindowToPreviousWorkspace");
@@ -260,7 +255,7 @@ public class WindowManager : IWindowManager
 				_ => (x, y) => false
 			};
 
-			string wndAttribute = rule.identifierType switch
+			var wndAttribute = rule.identifierType switch
 			{
 				"windowProcess" => wnd.exeName,
 				"windowTitle" => wnd.title,
@@ -285,7 +280,7 @@ public class WindowManager : IWindowManager
 		// WS_OVERLAPPED is the default style with which you get a normal window
 		// since WS_OVERLAPPED = 0x00000000L it must be checked by the absence of both
 		// WS_POPUP and WS_CHILD
-		bool isOverlapped = ((uint)wnd.styles & ((uint)WINDOWSTYLE.WS_POPUP | (uint)WINDOWSTYLE.WS_CHILD)) == 0;
+		var isOverlapped = ((uint)wnd.styles & ((uint)WINDOWSTYLE.WS_POPUP | (uint)WINDOWSTYLE.WS_CHILD)) == 0;
 		if (!isOverlapped &&
 		   !wnd.styles.HasFlag(WINDOWSTYLE.WS_POPUP)
 		) return true;
@@ -440,8 +435,8 @@ public class WindowManager : IWindowManager
 		// wndEnclosingCursor -> window enclosing cursor
 		if (!wnd.floating && wnd.resizeable)
 		{
-			User32.GetCursorPos(out POINT pt);
-			Window? wndUnderCursor = focusedWorkspace.GetWindowFromPoint(pt);
+			User32.GetCursorPos(out var pt);
+			var wndUnderCursor = focusedWorkspace.GetWindowFromPoint(pt);
 			if (wndUnderCursor == null) return;
 			focusedWorkspace.SwapWindows(wnd, wndUnderCursor);
 		}
@@ -548,12 +543,12 @@ public class WindowManager : IWindowManager
 
 	public string RequestReceived(string request)
 	{
-		string[] args = request.Split(" ");
+		var args = request.Split(" ");
 		args[args.Length - 1] = args.Last().Replace("\n", "");
 		//Console.WriteLine($"arg0: {args.FirstOrDefault()}, arg1: {args.ElementAtOrDefault(1)}");
-		string? verb = args.FirstOrDefault();
+		var verb = args.FirstOrDefault();
 		//Console.WriteLine($"verb: {verb}");
-		string response = "";
+		var response = "";
 		switch (verb)
 		{
 			case null or "":
@@ -574,7 +569,7 @@ public class WindowManager : IWindowManager
 					case null or "":
 						break;
 					case "focusedWorkspaceIndex":
-						int index = Convert.ToInt32(args.ElementAtOrDefault(2));
+						var index = Convert.ToInt32(args.ElementAtOrDefault(2));
 						if (index >= 0 && index <= workspaces.Count - 1) FocusWorkspace(workspaces[index]);
 						break;
 				}
@@ -588,7 +583,7 @@ public class WindowManager : IWindowManager
 	// animation related 
 	int GetX(int start, int end, int frames, int frame)
 	{
-		double progress = (double)frame / frames;
+		var progress = (double)frame / frames;
 		progress = EaseOutQuint(progress);
 		return start + (int)((end - start) * progress);
 	}
@@ -600,16 +595,16 @@ public class WindowManager : IWindowManager
 
 	public async Task WorkspaceAnimate(Workspace wksp, int startX, int endX, int duration)
 	{
-		int fps = 60;
-		int dt = 1000 / fps; // milliseconds
-		int frames = (int)(((float)duration / 1000) * fps);
+		var fps = 60;
+		var dt = 1000 / fps; // milliseconds
+		var frames = (int)(((float)duration / 1000) * fps);
 
 		Stopwatch sw = new();
 		sw.Start();
-		for (int i = 0; i < frames; i++)
+		for (var i = 0; i < frames; i++)
 		{
 			wksp.Move(GetX(startX, endX, frames, i), null, redraw: false); // not drawn, so must be manually redrawn once finished
-			int wait = (int)(i * dt - sw.ElapsedMilliseconds);
+			var wait = (int)(i * dt - sw.ElapsedMilliseconds);
 			wait = wait < 0 ? 0 : wait;
 			await Task.Delay(wait);
 		}

@@ -16,7 +16,7 @@ public class Workspace : IWorkspace
 		{
 			int? index = null;
 			if (focusedWindow == null) return null;
-			for (int i = 0; i < windows.Count; i++)
+			for (var i = 0; i < windows.Count; i++)
 			{
 				if (windows[i] == focusedWindow)
 				{
@@ -62,9 +62,9 @@ public class Workspace : IWorkspace
 		List<Window?> nonFloating = [.. windows.Where(wnd => wnd?.resizeable == true && wnd?.floating == false && wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED && wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)];
 
 		// non floating
-		RECT[] relRects = layout.GetRects(nonFloating.Count);
-		RECT[] rects = layout.ApplyInner(layout.ApplyOuter(relRects.ToArray()));
-		for (int i = 0; i < nonFloating.Count; i++)
+		var relRects = layout.GetRects(nonFloating.Count);
+		var rects = layout.ApplyInner(layout.ApplyOuter(relRects.ToArray()));
+		for (var i = 0; i < nonFloating.Count; i++)
 		{
 			nonFloating[i]?.Move(rects[i]);
 			nonFloating[i].relRect = relRects[i];
@@ -73,7 +73,7 @@ public class Workspace : IWorkspace
 		// floating
 		List<Window?> floating = [.. windows.Where(wnd => wnd?.resizeable == true && wnd?.floating == true && wnd?.state != SHOWWINDOW.SW_SHOWMAXIMIZED && wnd?.state != SHOWWINDOW.SW_SHOWMINIMIZED)];
 
-		for (int i = 0; i < floating.Count; i++)
+		for (var i = 0; i < floating.Count; i++)
 		{
 			floating[i].relRect = floating[i].rect;
 		}
@@ -113,7 +113,7 @@ public class Workspace : IWorkspace
 
 	public void CloseFocusedWindow()
 	{
-		int? index = focusedWindowIndex;
+		var index = focusedWindowIndex;
 		if (index == null) return;
 		index = index > 0 ? index - 1 : 0;
 		focusedWindow?.Close();
@@ -124,14 +124,14 @@ public class Workspace : IWorkspace
 	{
 		//Console.WriteLine($"focusing window on: {direction}, focusedWindowIndex: {focusedWindowIndex}");
 		if (focusedWindowIndex == null) return;
-		int? index = layout.GetAdjacent((int)focusedWindowIndex, direction);
+		var index = layout.GetAdjacent((int)focusedWindowIndex, direction);
 		if (index != null) windows?[(int)index]?.Focus();
 	}
 
 	public void ShiftFocusedWindow(int shiftBy)
 	{
-		Window? _fwnd = focusedWindow;
-		int? index = focusedWindowIndex;
+		var _fwnd = focusedWindow;
+		var index = focusedWindowIndex;
 		if (index == null) return;
 		index += shiftBy;
 		//Console.WriteLine($"SHIFTING");
@@ -159,7 +159,7 @@ public class Workspace : IWorkspace
 
 	RECT GetCenterRect(int w, int h)
 	{
-		(int sw, int sh) = Utils.GetScreenSize();
+		(var sw, var sh) = Utils.GetScreenSize();
 		return new()
 		{
 			Left = (sw - w) / 2,
@@ -172,8 +172,8 @@ public class Workspace : IWorkspace
 	public void SwapWindows(Window wnd1, Window wnd2)
 	{
 		if (!windows.Contains(wnd1) || !windows.Contains(wnd2)) return;
-		int wnd1_index = windows.Index().First(iwnd => iwnd.Item == wnd1).Index;
-		int wnd2_index = windows.Index().First(iwnd => iwnd.Item == wnd2).Index;
+		var wnd1_index = windows.Index().First(iwnd => iwnd.Item == wnd1).Index;
+		var wnd2_index = windows.Index().First(iwnd => iwnd.Item == wnd2).Index;
 		windows[wnd1_index] = wnd2;
 		windows[wnd2_index] = wnd1;
 		Update();

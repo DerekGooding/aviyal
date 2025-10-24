@@ -26,18 +26,18 @@ public class Server : IDisposable
 		{
 			while (true)
 			{
-				Socket client = socket.Accept();
+				var client = socket.Accept();
 				clients.Add(client);
 				Console.WriteLine("server: socket connected");
 				Task.Run(() =>
 				{
 					while (client.Connected)
 					{
-						byte[] buffer = new byte[1024];
-						int bytesRead = client.Receive(buffer);
-						string request = Encoding.UTF8.GetString(buffer.Take(bytesRead).ToArray());
-						string response = REQUEST_RECEIVED(request);
-						byte[] bytes = Encoding.UTF8.GetBytes(response);
+						var buffer = new byte[1024];
+						var bytesRead = client.Receive(buffer);
+						var request = Encoding.UTF8.GetString(buffer.Take(bytesRead).ToArray());
+						var response = REQUEST_RECEIVED(request);
+						var bytes = Encoding.UTF8.GetBytes(response);
 						client.Send(bytes);
 						Console.WriteLine($"server: request recieved: {request}, response: {response}");
 					}
@@ -54,7 +54,7 @@ public class Server : IDisposable
 		//Console.WriteLine($"[[[BROADCASTING TO {clients.Count}]]]");
 		clients?.ForEach(client =>
 		{
-			byte[] bytes = Encoding.UTF8.GetBytes(message);
+			var bytes = Encoding.UTF8.GetBytes(message);
 			if (client.Connected) client?.Send(bytes);
 		});
 	}

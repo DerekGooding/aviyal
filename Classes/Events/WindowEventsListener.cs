@@ -101,7 +101,7 @@ public class WindowEventsListener : IDisposable
 						//Console.WriteLine($"window restore check, dt:{dt}");
 						WINDOWPLACEMENT wndPlmnt = new();
 						User32.GetWindowPlacement(hWnd, ref wndPlmnt);
-						SHOWWINDOW state = (SHOWWINDOW)wndPlmnt.showCmd;
+						var state = (SHOWWINDOW)wndPlmnt.showCmd;
 						if (state == SHOWWINDOW.SW_MAXIMIZE)
 						{
 							WINDOW_MAXIMIZED(new Window(hWnd)); // to catch windows that might not send OBJECT_SHOW
@@ -134,7 +134,7 @@ public class WindowEventsListener : IDisposable
 		// message loop
 		while (running)
 		{
-			int _ = User32.GetMessage(out MSG msg, 0, 0, 0);
+			var _ = User32.GetMessage(out var msg, 0, 0, 0);
 			User32.TranslateMessage(ref msg);
 			User32.DispatchMessage(ref msg);
 		}
